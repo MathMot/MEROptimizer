@@ -14,9 +14,9 @@ Features :
 - Optimize only primitives with no collision
 
 - Commands to display information about the "optimized" schematics.
-mero.hide : Hides all of the client side primitives to display only the ones spawned on the server (only for the player executing the command)
-mero.refresh : Refresh all of the client side primitives (only for the player executing the command)
-mero\.info : Displays information about all of the optimized schematics (number of client side primitives, colliders, etc...)
+<br>mero.hide : Hides all of the client side primitives to display only the ones spawned on the server (only for the player executing the command)
+<br>mero.refresh : Refresh all of the client side primitives (only for the player executing the command)
+<br>mero\.info : Displays information about all of the optimized schematics (number of client side primitives, colliders, etc...)
 
 ---
 
@@ -50,7 +50,7 @@ For example, if you set your config like this :
   - 'Skins'
   ```
 All of the primitives that have at least one of its parent  that contains "ExcludedPrimitives" or "Skins" will not be optimized.
-Example : 
+Example : <br>
 [![Example](https://imgur.com/JmTM9k6.png)](https://imgur.com/JmTM9k6.png)
 
 ---
