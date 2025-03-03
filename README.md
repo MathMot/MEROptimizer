@@ -3,7 +3,7 @@
 [SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/MapEditorReborn) schematics using the [EXILED](https://github.com/ExMod-Team/EXILED) Framework.
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
 
-You can ask questions on the discord [here](https://discord.gg/AYkFPb6dzv).
+You can ask questions on discord (matmoth)
 
 ---
 
