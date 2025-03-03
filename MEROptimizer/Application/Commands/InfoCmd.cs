@@ -30,7 +30,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
 
       foreach (OptimizedSchematic os in Plugin.merOptimizer.optimizedSchematics)
       {
-        message =
+        message +=
           $"Schematic : {os.schematic.name}\n" +
           $"Spawned at {os.spawnTime.ToShortTimeString()}\n" +
           $"Total primitive : {os.schematicsTotalPrimitives}\n" +

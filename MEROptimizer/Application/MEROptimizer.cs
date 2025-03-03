@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 
@@ -139,12 +140,9 @@ namespace MEROptimizer.MEROptimizer.Application
 
         if (!child.TryGetComponent(out MapEditorObject _) && !parentToExclude.Contains(child))
         {
-          foreach (string name in excludedNames)
+          if (!excludedNames.Any(n => child.name.ToLower().Contains(n.ToLower())))
           {
-            if (!child.name.ToLower().Contains(name.ToLower()))
-            {
-              GetPrimitivesToOptimize(child, parentToExclude, primitives);
-            }
+            GetPrimitivesToOptimize(child, parentToExclude, primitives);
           }
         }
       }
