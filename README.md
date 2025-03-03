@@ -22,7 +22,8 @@ Features :
 
 Setup : 
 -- 
-[Download](https://github.com/MathMot/MEROptimizer/releases) the latest version of the plugin and place the .dll in EXILED/Plugins
+Make sure that your SCP:SL server version(14.0.2) and EXILED version (9.5.1) are corresponding
+[Download](https://github.com/MathMot/MEROptimizer/releases/latest) the latest version of the plugin and place the .dll in EXILED/Plugins
 
 ---
 
