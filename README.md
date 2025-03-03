@@ -22,7 +22,7 @@ Features :
 
 Setup : 
 -- 
-Make sure that your SCP:SL server version(14.0.2) and EXILED version (9.5.1) are corresponding
+Make sure that your SCP:SL server version(14.0.2) and EXILED version (9.5.1) are corresponding <br>
 [Download](https://github.com/MathMot/MEROptimizer/releases/latest) the latest version of the plugin and place the .dll in EXILED/Plugins
 
 ---
