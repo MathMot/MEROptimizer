@@ -35,7 +35,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
           $"Spawned at {os.spawnTime.ToShortTimeString()}\n" +
           $"Total primitive : {os.schematicsTotalPrimitives}\n" +
           $"Client side primitive count: {os.primitives.Count}\n" +
-          $"Server side primitives count: {os.serverSpawnedPrimitives}\n" +
+          $"Server side primitive count: {os.serverSpawnedPrimitives}\n" +
           $"Number of server side colliders : {os.colliders.Count}\n----------------\n";
       }
 

@@ -29,7 +29,7 @@ namespace MEROptimizer.MEROptimizer.Application
     private Mesh capsuleMesh;
 
     private Mesh cylinderMesh;
-    /*    
+    /*
     private Mesh quadMesh;
    
     private Mesh planeMesh;
@@ -127,7 +127,12 @@ namespace MEROptimizer.MEROptimizer.Application
 
           // Keep the quads/planes, colliders are buggy
 
-          if (primitive.Primitive.Type == PrimitiveType.Quad || primitive.Primitive.Type == PrimitiveType.Plane) continue;
+          if ((primitive.Primitive.Type == PrimitiveType.Quad || primitive.Primitive.Type == PrimitiveType.Plane)
+            && primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable))
+          {
+            continue;
+          }
+
 
           if (this.excludeCollidables)
           {
