@@ -85,7 +85,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
         primitive.DestroyForEveryone();
       }
 
-      Log.Debug($"Destroy client side schematic {schematicName} !");
+      Log.Debug($"Destroyed client side schematic {schematicName} !");
     }
   }
 }
