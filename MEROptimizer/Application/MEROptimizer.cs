@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 namespace MEROptimizer.MEROptimizer.Application
 {
@@ -37,7 +38,6 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private List<string> excludedNames;
 
-
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
@@ -53,7 +53,6 @@ namespace MEROptimizer.MEROptimizer.Application
       // MER Events
 
       MapEditorReborn.Events.Handlers.Schematic.SchematicSpawned += OnSchematicSpawned;
-      MapEditorReborn.Events.Handlers.Schematic.SchematicDestroyed += OnSchematicDestroyed;
 
     }
 
@@ -67,7 +66,6 @@ namespace MEROptimizer.MEROptimizer.Application
       // MER Events
 
       MapEditorReborn.Events.Handlers.Schematic.SchematicSpawned -= OnSchematicSpawned;
-      MapEditorReborn.Events.Handlers.Schematic.SchematicDestroyed -= OnSchematicDestroyed;
 
       Clear();
     }
@@ -78,7 +76,6 @@ namespace MEROptimizer.MEROptimizer.Application
     private void Clear()
     {
       optimizedSchematics.Clear();
-
     }
 
     private void GenerateMeshFilters()
@@ -272,20 +269,14 @@ namespace MEROptimizer.MEROptimizer.Application
         schematicsTotalPrimitives = totalPrimitiveCount
       };
 
+      SchematicTracker tracker = ev.Schematic.gameObject.AddComponent<SchematicTracker>();
+      tracker.linkedSchematic = schematic;
+      tracker.MEROptimizer = this;
+
       schematic.SpawnClientPrimitivesToAll();
 
       optimizedSchematics.Add(schematic);
 
-    }
-
-    private void OnSchematicDestroyed(SchematicDestroyedEventArgs ev)
-    {
-      OptimizedSchematic optimizedSchematic = optimizedSchematics.Where(o => o.schematic == ev.Schematic).FirstOrDefault();
-
-      if (optimizedSchematic == null) return;
-
-      optimizedSchematic.Destroy();
-      optimizedSchematics.Remove(optimizedSchematic);
     }
   }
 }

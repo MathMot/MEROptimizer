@@ -117,6 +117,7 @@
     <Compile Include="MEROptimizer\Application\Commands\HideCmd.cs" />
     <Compile Include="MEROptimizer\Application\Components\ClientSidePrimitive.cs" />
     <Compile Include="MEROptimizer\Application\Components\OptimizedSchematic.cs" />
+    <Compile Include="MEROptimizer\Application\Components\SchematicTracker.cs" />
     <Compile Include="MEROptimizer\Application\MEROptimizer.cs" />
     <Compile Include="MEROptimizer\Config.cs" />
     <Compile Include="MEROptimizer\Plugin.cs" />

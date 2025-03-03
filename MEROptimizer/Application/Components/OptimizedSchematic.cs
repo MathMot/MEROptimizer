@@ -13,6 +13,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
   {
     public SchematicObject schematic { get; set; }
 
+    private string schematicName;
+
     public List<Collider> colliders { get; set; }
 
     public List<ClientSidePrimitive> primitives { get; set; }
@@ -29,6 +31,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       this.colliders = colliders;
       this.primitives = primitives;
       spawnTime = DateTime.Now;
+
+      schematicName = schematic.name;
     }
 
     public void ShowFor(Player player)
@@ -54,7 +58,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void SpawnClientPrimitivesToAll()
     {
-      Log.Debug($"Displaying {this.schematic.name}'s client side primitives !");
+      Log.Debug($"Displaying {schematicName}'s client side primitives !");
       foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
       {
         SpawnClientPrimitives(player);
@@ -80,6 +84,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       {
         primitive.DestroyForEveryone();
       }
+
+      Log.Debug($"Destroy client side schematic {schematicName} !");
     }
   }
 }
