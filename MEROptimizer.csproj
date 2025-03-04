@@ -15,7 +15,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -114,11 +114,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MEROptimizer\Application\Commands\InfoCmd.cs" />
-    <Compile Include="MEROptimizer\Application\Commands\ShowCmd.cs" />
+    <Compile Include="MEROptimizer\Application\Commands\RefreshCmd.cs" />
     <Compile Include="MEROptimizer\Application\Commands\HideCmd.cs" />
     <Compile Include="MEROptimizer\Application\Components\ClientSidePrimitive.cs" />
     <Compile Include="MEROptimizer\Application\Components\OptimizedSchematic.cs" />
-    <Compile Include="MEROptimizer\Application\Components\SchematicTracker.cs" />
     <Compile Include="MEROptimizer\Application\MEROptimizer.cs" />
     <Compile Include="MEROptimizer\Config.cs" />
     <Compile Include="MEROptimizer\Plugin.cs" />

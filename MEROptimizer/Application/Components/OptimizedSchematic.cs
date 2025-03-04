@@ -35,19 +35,25 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       schematicName = schematic.name;
     }
 
-    public void ShowFor(Player player)
+    public void RefreshFor(Player player)
     {
-      HideFor(player);
+      HideFor(player, false);
 
       foreach (ClientSidePrimitive primitive in primitives)
       {
         primitive.SpawnClientPrimitive(player);
       }
-
+      Log.Debug($"Refresh the schematic {this.schematicName} for {player.DisplayNickname} !");
     }
 
-    public void HideFor(Player player)
+    public void HideFor(Player player, bool showDebug = true)
     {
+      if (player == null) return;
+      if (showDebug)
+      {
+        Log.Debug($"Hiding client side primitives of {this.schematicName} to {player.DisplayNickname}");
+      }
+
       foreach (ClientSidePrimitive primitive in primitives)
       {
         primitive.DestroyClientPrimitive(player);
@@ -67,6 +73,9 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void SpawnClientPrimitives(Player player)
     {
+      if (player == null) return;
+
+      Log.Debug($"Displaying client side primitives of {this.schematicName} to {player.DisplayNickname}");
       foreach (ClientSidePrimitive primitive in primitives)
       {
         primitive.SpawnClientPrimitive(player);
