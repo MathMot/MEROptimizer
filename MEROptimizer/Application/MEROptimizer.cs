@@ -5,7 +5,9 @@ using Exiled.API.Features.Toys;
 using Exiled.Events.EventArgs.Player;
 using MapEditorReborn.API.Features.Objects;
 using MapEditorReborn.Events.EventArgs;
+using MEC;
 using MEROptimizer.MEROptimizer.Application.Components;
+using Mirror;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +56,7 @@ namespace MEROptimizer.MEROptimizer.Application
       // MER Events
 
       MapEditorReborn.Events.Handlers.Schematic.SchematicSpawned += OnSchematicSpawned;
+      MapEditorReborn.Events.Handlers.Schematic.SchematicDestroyed += OnSchematicDestroyed;
 
     }
 
@@ -67,6 +70,7 @@ namespace MEROptimizer.MEROptimizer.Application
       // MER Events
 
       MapEditorReborn.Events.Handlers.Schematic.SchematicSpawned -= OnSchematicSpawned;
+      MapEditorReborn.Events.Handlers.Schematic.SchematicDestroyed -= OnSchematicDestroyed;
 
       Clear();
     }
@@ -133,7 +137,6 @@ namespace MEROptimizer.MEROptimizer.Application
             continue;
           }
 
-
           if (this.excludeCollidables)
           {
             if (primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable)) continue;
@@ -165,7 +168,6 @@ namespace MEROptimizer.MEROptimizer.Application
       }
 
       Clear();
-
     }
 
     //--------------- Events EXILED
@@ -183,6 +185,7 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
     {
+
       if (!hasGenerated)
       {
         Log.Error($"Unable to generate Optimized Schematic for {ev.Schematic.Name} because mesh filters are not generated yet !");
@@ -208,6 +211,8 @@ namespace MEROptimizer.MEROptimizer.Application
       List<ClientSidePrimitive> clientSidePrimitive = new List<ClientSidePrimitive>();
 
       List<Collider> serverSideColliders = new List<Collider>();
+
+      List<PrimitiveObject> primitivesToDestroy = new List<PrimitiveObject>();
 
       foreach (PrimitiveObject primitive in primitivesToOptimize.ToList())
       {
@@ -260,9 +265,7 @@ namespace MEROptimizer.MEROptimizer.Application
           if (meshCollider != null) serverSideColliders.Add(meshCollider);
         }
 
-        // Destroys the primitive for the server/client
-        primitive.Destroy();
-
+        primitivesToDestroy.Add(primitive);
       }
 
       // Store the client side primitive / server side colliders
@@ -272,14 +275,38 @@ namespace MEROptimizer.MEROptimizer.Application
         schematicsTotalPrimitives = totalPrimitiveCount
       };
 
-      SchematicTracker tracker = ev.Schematic.gameObject.AddComponent<SchematicTracker>();
-      tracker.linkedSchematic = schematic;
-      tracker.MEROptimizer = this;
-
       schematic.SpawnClientPrimitivesToAll();
 
       optimizedSchematics.Add(schematic);
+      Timing.CallDelayed(1f, () =>
+      {
+        if (ev.Schematic == null) return;
+        Log.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
+        DestroyPrimitives(ev.Schematic, primitivesToDestroy);
+      });
 
     }
+
+    private void DestroyPrimitives(SchematicObject schematic, List<PrimitiveObject> primitives)
+    {
+      foreach (PrimitiveObject primitive in primitives.Where(p => p != null && p.gameObject != null))
+      {
+        schematic?.AttachedBlocks.Remove(primitive.gameObject);
+        primitive.Destroy();
+      }
+    }
+
+    private void OnSchematicDestroyed(SchematicDestroyedEventArgs ev)
+    {
+      foreach (OptimizedSchematic optimizedSchematic in optimizedSchematics.ToList())
+      {
+        if (optimizedSchematic.schematic == null || optimizedSchematic.schematic == ev.Schematic)
+        {
+          optimizedSchematic.Destroy();
+          optimizedSchematics.Remove(optimizedSchematic);
+        }
+      }
+    }
+
   }
 }

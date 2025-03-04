@@ -10,7 +10,7 @@ using System.Text;
 namespace MEROptimizer.MEROptimizer.Application.Commands
 {
   [CommandHandler(typeof(RemoteAdminCommandHandler))]
-  public class ShowCmd : ICommand
+  public class RefreshCmd : ICommand
   {
     public string Command { get; } = "mero.refresh";
 
@@ -28,7 +28,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
 
       foreach (OptimizedSchematic optimizedSchematic in Plugin.merOptimizer.optimizedSchematics)
       {
-        optimizedSchematic.ShowFor(player);
+        optimizedSchematic.RefreshFor(player);
       }
       response = $"Succesfully refreshed all of the optimized schematics !";
 
