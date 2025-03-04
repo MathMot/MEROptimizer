@@ -7,6 +7,10 @@ You can ask questions on discord (matmoth)
 
 ---
 
+Informations : 
+-- 
+- Quads and Planes <b>with collisions</b> will not be optimized by the plugin, the primitives will stay by default on the server side.
+
 Features : 
 -- 
 - Exclude certain group of primitives so that they won't be optimized (useful if another plugin has to use certain primitives of the schematics)
@@ -60,4 +64,3 @@ Credits :
 -- 
 - Plugin made by [Math](https://github.com/MathMot) 
 - Original idea/sample code by a friend
-
