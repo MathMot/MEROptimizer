@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MEROptimizer.MEROptimizer.Application;
 using HarmonyLib;
+using Exiled.API.Enums;
 
 namespace MEROptimizer.MEROptimizer
 {
@@ -14,6 +15,7 @@ namespace MEROptimizer.MEROptimizer
     public override string Name => "MEROptimizer";
     public override string Author => "Math";
     public override string Prefix => "mero";
+    public override PluginPriority Priority { get; } = PluginPriority.Low;
 
     private static int patchCount = 1;
 
@@ -27,6 +29,8 @@ namespace MEROptimizer.MEROptimizer
       // Harmony
       harmony = new Harmony($"{Author.ToLower()}.{Name.ToLower()}.{patchCount++}");
       harmony.PatchAll();
+
+      Log.Info($"{Name} v{Version.Major}.{Version.Minor}.{Version.Build} by {Author} has been enabled!");
     }
 
     public override void OnDisabled()
