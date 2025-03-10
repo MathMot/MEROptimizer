@@ -124,7 +124,7 @@ namespace MEROptimizer.MEROptimizer.Application
       for (int i = 0; i < parent.childCount; i++)
       {
         Transform child = parent.GetChild(i);
-        if (child == null) continue;
+        if (child == null || parentToExclude.Contains(child)) continue;
 
         if (child.TryGetComponent(out PrimitiveObject primitive))
         {
