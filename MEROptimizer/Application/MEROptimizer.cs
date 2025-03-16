@@ -31,6 +31,7 @@ namespace MEROptimizer.MEROptimizer.Application
     private Mesh capsuleMesh;
 
     private Mesh cylinderMesh;
+
     /*
     private Mesh quadMesh;
    
@@ -41,12 +42,28 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private List<string> excludedNames;
 
+    private bool hideDistantPrimitives;
+
+    private float distanceRequiredForUnspawning;
+
+    private int maxDistanceForPrimitiveCluster;
+
+    private int maxPrimitivesPerCluster;
+
+    private List<string> excludedNamesForUnspawningDistantObjects;
+
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
       //Config
       excludeCollidables = config.OptimizeOnlyNonCollidable;
       excludedNames = config.excludeObjects;
+
+      hideDistantPrimitives = config.HideDistantPrimitivesToPlayers;
+      distanceRequiredForUnspawning = config.DistanceRequiredForUnspawningPrimitives;
+      excludedNamesForUnspawningDistantObjects = config.excludeUnspawningDistantObjects;
+      maxDistanceForPrimitiveCluster = config.MaxDistanceForPrimitiveCluster;
+      maxPrimitivesPerCluster = config.MaxPrimitivesPerCluster;
 
       // Exiled Events
 
@@ -116,15 +133,28 @@ namespace MEROptimizer.MEROptimizer.Application
       hasGenerated = true;
     }
 
-    private List<PrimitiveObject> GetPrimitivesToOptimize(Transform parent, List<Transform> parentToExclude, List<PrimitiveObject> primitives = null)
+    Dictionary<PrimitiveObject, bool> GetPrimitivesToOptimize(Transform parent, List<Transform> parentToExclude,
+      Dictionary<PrimitiveObject, bool> primitives = null, bool clusterChilds = true)
     {
 
-      if (primitives == null) primitives = new List<PrimitiveObject>();
+      if (primitives == null) primitives = new Dictionary<PrimitiveObject, bool>();
 
       for (int i = 0; i < parent.childCount; i++)
       {
         Transform child = parent.GetChild(i);
         if (child == null || parentToExclude.Contains(child)) continue;
+
+        if (clusterChilds)
+        {
+          foreach(string name in excludedNamesForUnspawningDistantObjects)
+          {
+            if (child.name.Contains(name))
+            {
+              clusterChilds = false;
+              //break;
+            }
+          }
+        }
 
         if (child.TryGetComponent(out PrimitiveObject primitive))
         {
@@ -142,7 +172,7 @@ namespace MEROptimizer.MEROptimizer.Application
             if (primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable)) continue;
           }
 
-          primitives.Add(primitive);
+          primitives.Add(primitive,clusterChilds);
           continue;
         }
 
@@ -175,6 +205,14 @@ namespace MEROptimizer.MEROptimizer.Application
     {
       if (ev.Player == null || !ev.Player.IsVerified) return;
 
+      GameObject playerTrigger = new GameObject($"{ev.Player.Id}_MERO_TRIGGER");
+      playerTrigger.transform.parent = ev.Player.GameObject.transform;
+      playerTrigger.transform.localPosition = new Vector3(0, 2000, 0);
+      playerTrigger.tag = "Player";
+      Rigidbody rb = playerTrigger.AddComponent<Rigidbody>();
+      rb.isKinematic = true;
+      playerTrigger.AddComponent<BoxCollider>();
+
       foreach (OptimizedSchematic schematic in optimizedSchematics)
       {
         schematic.SpawnClientPrimitives(ev.Player);
@@ -202,19 +240,19 @@ namespace MEROptimizer.MEROptimizer.Application
         parentsToExlude.Add(anim.transform);
       }
 
-      List<PrimitiveObject> primitivesToOptimize = GetPrimitivesToOptimize(ev.Schematic.transform, parentsToExlude);
+      Dictionary<PrimitiveObject, bool> primitivesToOptimize = GetPrimitivesToOptimize(ev.Schematic.transform, parentsToExlude);
 
       if (primitivesToOptimize == null || primitivesToOptimize.IsEmpty()) return;
 
       int totalPrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObject>().Count();
 
-      List<ClientSidePrimitive> clientSidePrimitive = new List<ClientSidePrimitive>();
+      Dictionary<ClientSidePrimitive,bool> clientSidePrimitive = new Dictionary<ClientSidePrimitive, bool>();
 
       List<Collider> serverSideColliders = new List<Collider>();
 
       List<PrimitiveObject> primitivesToDestroy = new List<PrimitiveObject>();
 
-      foreach (PrimitiveObject primitive in primitivesToOptimize.ToList())
+      foreach (PrimitiveObject primitive in primitivesToOptimize.Keys.ToList())
       {
 
         // Retrieve data
@@ -231,7 +269,7 @@ namespace MEROptimizer.MEROptimizer.Application
 
         // store the data about the primitive
 
-        clientSidePrimitive.Add(new ClientSidePrimitive(position, rotation, scale, primitiveType, color, primitiveFlags));
+        clientSidePrimitive.Add(new ClientSidePrimitive(position, rotation, scale, primitiveType, color, primitiveFlags), primitivesToOptimize[primitive]);
 
         // Add collider for the server if the primitive is collidable
         if (primitiveFlags.HasFlag(PrimitiveFlags.Collidable))
@@ -270,12 +308,13 @@ namespace MEROptimizer.MEROptimizer.Application
 
       // Store the client side primitive / server side colliders
 
-      OptimizedSchematic schematic = new OptimizedSchematic(ev.Schematic, serverSideColliders, clientSidePrimitive)
+      OptimizedSchematic schematic = new OptimizedSchematic(ev.Schematic, serverSideColliders, clientSidePrimitive,
+        hideDistantPrimitives,distanceRequiredForUnspawning,excludedNamesForUnspawningDistantObjects,
+        maxDistanceForPrimitiveCluster,maxPrimitivesPerCluster)
       {
         schematicsTotalPrimitives = totalPrimitiveCount
-      };
 
-      schematic.SpawnClientPrimitivesToAll();
+      };
 
       optimizedSchematics.Add(schematic);
       Timing.CallDelayed(1f, () =>

@@ -10,13 +10,13 @@ using System.Text;
 namespace MEROptimizer.MEROptimizer.Application.Commands
 {
   [CommandHandler(typeof(RemoteAdminCommandHandler))]
-  public class InfoCmd : ICommand
+  public class ClusterInfoCmd : ICommand
   {
-    public string Command { get; } = "mero.info";
+    public string Command { get; } = "mero.clusters";
 
     public string[] Aliases { get; }
 
-    public string Description { get; } = "Displays information about all of the optimized schematics.";
+    public string Description { get; } = "Displays information about all of the clusters in schematics.";
 
     public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
     {
@@ -32,13 +32,15 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
       {
         message +=
           $"Schematic : {os.schematic.name}\n" +
-          $"Spawned at {os.spawnTime.ToShortTimeString()}\n" +
-          $"Total primitive : {os.schematicsTotalPrimitives}\n" +
-          $"Client side primitive count: {os.nonClusteredPrimitives.Count}\n" +
-          $"Server side primitive count: {os.serverSpawnedPrimitives}\n" +
-          $"Number of server side colliders : {os.colliders.Count}\n"+
-          $"Number of clusters : {os.primitiveClusters.Count}\n----------------\n";
+          $"Number of clusters : {os.primitiveClusters.Count}";
+
+        foreach (PrimitiveCluster cluster in os.primitiveClusters)
+        {
+          message += $"\nId : {cluster.id} | Number of primitives : {cluster.primitives.Count}";
+        }
       }
+
+      message += $"\n----------------\n";
 
       response = message != "" ? message : "No information to display";
 
