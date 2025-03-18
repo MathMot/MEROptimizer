@@ -8,6 +8,7 @@ using MapEditorReborn.Events.EventArgs;
 using MEC;
 using MEROptimizer.MEROptimizer.Application.Components;
 using Mirror;
+using PlayerRoles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,8 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private bool hideDistantPrimitives;
 
+    private bool shouldSpectatorsBeAffectedByPDS;
+
     private float distanceRequiredForUnspawning;
 
     private int maxDistanceForPrimitiveCluster;
@@ -64,11 +67,15 @@ namespace MEROptimizer.MEROptimizer.Application
       excludedNamesForUnspawningDistantObjects = config.excludeUnspawningDistantObjects;
       maxDistanceForPrimitiveCluster = config.MaxDistanceForPrimitiveCluster;
       maxPrimitivesPerCluster = config.MaxPrimitivesPerCluster;
+      shouldSpectatorsBeAffectedByPDS = config.ShouldSpectatorsBeAffectByPDS;
 
       // Exiled Events
 
       Exiled.Events.Handlers.Player.Verified += OnVerified;
+      Exiled.Events.Handlers.Player.Spawned += OnSpawned;
+      Exiled.Events.Handlers.Player.ChangingSpectatedPlayer += OnChangingSpectatedPlayer;
       Exiled.Events.Handlers.Server.WaitingForPlayers += OnWaitingForPlayers;
+
 
       // MER Events
 
@@ -82,6 +89,8 @@ namespace MEROptimizer.MEROptimizer.Application
       // Exiled Events
 
       Exiled.Events.Handlers.Player.Verified -= OnVerified;
+      Exiled.Events.Handlers.Player.Spawned -= OnSpawned;
+      Exiled.Events.Handlers.Player.ChangingSpectatedPlayer -= OnChangingSpectatedPlayer;
       Exiled.Events.Handlers.Server.WaitingForPlayers -= OnWaitingForPlayers;
 
       // MER Events
@@ -146,7 +155,7 @@ namespace MEROptimizer.MEROptimizer.Application
 
         if (clusterChilds)
         {
-          foreach(string name in excludedNamesForUnspawningDistantObjects)
+          foreach (string name in excludedNamesForUnspawningDistantObjects)
           {
             if (child.name.Contains(name))
             {
@@ -172,7 +181,7 @@ namespace MEROptimizer.MEROptimizer.Application
             if (primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable)) continue;
           }
 
-          primitives.Add(primitive,clusterChilds);
+          primitives.Add(primitive, clusterChilds);
           continue;
         }
 
@@ -185,7 +194,7 @@ namespace MEROptimizer.MEROptimizer.Application
         }
       }
 
-      return primitives;
+      return GetPrimitivesToOptimize(null, parentToExclude, primitives);
     }
 
     // --------------- Events
@@ -219,6 +228,61 @@ namespace MEROptimizer.MEROptimizer.Application
       }
     }
 
+    private void OnSpawned(SpawnedEventArgs ev)
+    {
+      if (ev.Player == null || !ev.Player.IsVerified) return;
+
+      if (!shouldSpectatorsBeAffectedByPDS)
+      {
+        // just spawned as a spectator, we spawn all clusters primitives for him
+        if (ev.Player.Role.Type == RoleTypeId.Spectator)
+        {
+          foreach (OptimizedSchematic schematic in optimizedSchematics)
+          {
+            foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+            {
+              cluster.SpawnFor(ev.Player);
+            }
+          }
+        } // the player just spawned and was a spectator
+        else if (ev.OldRole.Type == RoleTypeId.Spectator)
+        {
+          foreach (OptimizedSchematic schematic in optimizedSchematics)
+          {
+            foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+            {
+              cluster.UnspawnFor(ev.Player);
+            }
+          }
+        }
+      }
+    }
+
+    private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
+    {
+      if (shouldSpectatorsBeAffectedByPDS)
+      {
+        if (ev.Player == null || !ev.Player.IsVerified) return;
+
+        foreach (OptimizedSchematic schematic in optimizedSchematics)
+        {
+          foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+          {
+            if (ev.OldTarget != null && cluster.insidePlayers.Contains(ev.OldTarget))
+            {
+              cluster.UnspawnFor(ev.Player);
+            }
+
+            if (ev.NewTarget != null && cluster.insidePlayers.Contains(ev.NewTarget))
+            {
+              cluster.SpawnFor(ev.Player);
+            }
+
+          }
+        }
+      }
+    }
+
     // --------------- Events MER
 
     private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
@@ -246,7 +310,7 @@ namespace MEROptimizer.MEROptimizer.Application
 
       int totalPrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObject>().Count();
 
-      Dictionary<ClientSidePrimitive,bool> clientSidePrimitive = new Dictionary<ClientSidePrimitive, bool>();
+      Dictionary<ClientSidePrimitive, bool> clientSidePrimitive = new Dictionary<ClientSidePrimitive, bool>();
 
       List<Collider> serverSideColliders = new List<Collider>();
 
@@ -309,8 +373,8 @@ namespace MEROptimizer.MEROptimizer.Application
       // Store the client side primitive / server side colliders
 
       OptimizedSchematic schematic = new OptimizedSchematic(ev.Schematic, serverSideColliders, clientSidePrimitive,
-        hideDistantPrimitives,distanceRequiredForUnspawning,excludedNamesForUnspawningDistantObjects,
-        maxDistanceForPrimitiveCluster,maxPrimitivesPerCluster)
+        hideDistantPrimitives, distanceRequiredForUnspawning, excludedNamesForUnspawningDistantObjects,
+        maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster)
       {
         schematicsTotalPrimitives = totalPrimitiveCount
 

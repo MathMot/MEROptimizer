@@ -29,7 +29,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public int serverSpawnedPrimitives => schematicsTotalPrimitives - nonClusteredPrimitives.Count;
 
-    public OptimizedSchematic(SchematicObject schematic, List<Collider> colliders, Dictionary<ClientSidePrimitive,bool> primitives,
+    public OptimizedSchematic(SchematicObject schematic, List<Collider> colliders, Dictionary<ClientSidePrimitive, bool> primitives,
       bool doClusters = false, float distance = 50, List<string> excludedUnspawnObjects = null, int maxDistanceForPrimitiveCluster = 5,
       int maxPrimitivesPerCluster = 200)
     {
@@ -42,7 +42,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       nonClusteredPrimitives = new List<ClientSidePrimitive>();
       primitiveClusters = new List<PrimitiveCluster>();
 
-      GenerateClustersAndSpawn(doClusters, primitives, distance, excludedUnspawnObjects, maxDistanceForPrimitiveCluster,maxPrimitivesPerCluster);
+      GenerateClustersAndSpawn(doClusters, primitives, distance, excludedUnspawnObjects, maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster);
 
     }
 
@@ -83,14 +83,15 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
           // Sort the primitives by their distance with the center
           List<ClientSidePrimitive> sortedPrimitives = primitives.Keys.ToList();
-          sortedPrimitives =  sortedPrimitives.OrderBy(s => Vector3.Distance( s.position, center3D)).ToList();
+          sortedPrimitives = sortedPrimitives.OrderBy(s => Vector3.Distance(s.position, center3D)).ToList();
 
           Dictionary<int, List<ClientSidePrimitive>> clusters = new Dictionary<int, List<ClientSidePrimitive>>();
 
           int clusterNumber = 1;
 
           // Creates clusters, add the primitives to the clusters until all clusters are generated
-          while (sortedPrimitives.Count > 0) {
+          while (sortedPrimitives.Count > 0)
+          {
 
             ClientSidePrimitive closestFromCenterPrimitive = sortedPrimitives.First();
 
@@ -101,8 +102,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
             Vector3 centerPos = closestFromCenterPrimitive.position;
 
             // Keep all of the primitives where their distance correspond
-            sortedPrimitiveByCluster.RemoveAll(p => 
-            Vector3.Distance(p.position, centerPos ) > maxDistanceForPrimitiveCluster);
+            sortedPrimitiveByCluster.RemoveAll(p =>
+            Vector3.Distance(p.position, centerPos) > maxDistanceForPrimitiveCluster);
 
             // Remove excess primitives based on config
             if (sortedPrimitiveByCluster.Count > maxPrimitivesPerCluster)
@@ -127,7 +128,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           foreach (KeyValuePair<int, List<ClientSidePrimitive>> cluster in clusters)
           {
 
-           
+
             // Get the center of the cluster
 
             Vector3 center = Vector3.zero;
@@ -142,7 +143,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
             GameObject gameObject = new GameObject($"[MERO] PrimitiveCluster_{schematic.name}_{cluster.Key}");
 
-            gameObject.transform.position = center + new Vector3(0,2000,0);
+            gameObject.transform.position = center + new Vector3(0, 2000, 0);
             gameObject.transform.rotation = Quaternion.identity;
             gameObject.transform.localScale = Vector3.one;
 
@@ -224,9 +225,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
         primitive.DestroyForEveryone();
       }
 
-      foreach(PrimitiveCluster cluster in primitiveClusters)
+      foreach (PrimitiveCluster cluster in primitiveClusters)
       {
-        // to test
         UnityEngine.Object.Destroy(cluster.gameObject);
       }
 

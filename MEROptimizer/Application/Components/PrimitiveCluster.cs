@@ -18,10 +18,12 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     private Dictionary<Player, List<ClientSidePrimitive>> awaitingSpawn = new Dictionary<Player, List<ClientSidePrimitive>>();
 
+    public List<Player> insidePlayers = new List<Player>();
+
     public void Start()
     {
       float radius = this.GetComponent<SphereCollider>().radius;
-      displayClusterPrimitive = new ClientSidePrimitive(this.transform.position - new Vector3(0, 20000, 0),
+      displayClusterPrimitive = new ClientSidePrimitive(this.transform.position - new Vector3(0, 2000, 0),
         this.transform.rotation, Vector3.one * (radius / 2), PrimitiveType.Sphere, new Color(1, 0, 0, .5f), PrimitiveFlags.Visible);
     }
 
@@ -43,6 +45,11 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       awaitingSpawn.Remove(player);
 
       awaitingSpawn.Add(player, primitives.ToList());
+
+      if (!insidePlayers.Contains(player)) {
+        insidePlayers.Add(player);
+      }
+
     }
 
     public void Update()
@@ -80,6 +87,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       awaitingSpawn.Remove(player);
 
       UnspawnFor(player);
+
+      insidePlayers.Remove(player);
 
     }
 
