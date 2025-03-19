@@ -86,10 +86,10 @@ mero:
   # -------------Global Options-------------
 
   
-### <b><span style="color:lightgreen">optimize_only_non_collidable</span></b>
+### <b><code style="color : greenyellow">optimize_only_non_collidable</code></b>
 If enabled, every primitives that are collidable will not be optimized. In case colliders in game are funky.
 
-### <b><span style="color:lightgreen">exclude_objects</span></b>
+### <b><code style="color : greenyellow">exclude_objects</code></b>
 There you can add every object name that the plugin will exclude for the optimization.
 For example, if you set your config like this : 
 
@@ -105,24 +105,24 @@ Example : <br>
 
  # --------Schematic cluster splitting options--------
 
-### <b><span style="color:lightgreen">clusterize_schematic</span></b>
+### <b><code style="color : greenyellow">clusterize_schematic</code></b>
 If enable, the clutter system will be enabled.
 The cluster system means the splitting of each schematic into small clusters of primitives, used to then spawn or unspawn the primitives of the cluster to each player based on their distance with the position of the cluster.
 
-### <b><span style="color:lightgreen">exclude_unspawning_distant_objects</span></b>
-Same system as <b><span style="color:lightgreen">exclude_objects</span></b>, every schematics that has a parent with the same name as one written in the list will be excluded of the clusters and will be spawned with the schematic without being spawn/unspawn to players.
+### <b><code style="color : greenyellow">exclude_unspawning_distant_objects</code></b>
+Same system as <b><code style="color : greenyellow">exclude_objects</code></b>, every schematics that has a parent with the same name as one written in the list will be excluded of the clusters and will be spawned with the schematic without being spawn/unspawn to players.
 Usefull for large outside walls of buildings, huge text, logos, walls and floors of indoors builds, etc..
 
-### <b><span style="color:lightgreen">spawn_distance</span></b>
+### <b><code style="color : greenyellow">spawn_distance</code></b>
 The distance between the cluster and the player needed for the primitives of the cluster to spawn/unspawn from the player, a larger distance means that more primitives will be spawned to players at the same time, you can match the distance with the natural fog in game if needed.
 
-### <b><span style="color:lightgreen">should_spectator_be_affected_by_distance_spawning</span></b>
+### <b><code style="color : greenyellow">should_spectator_be_affected_by_distance_spawning</code></b>
 If enabled, spectators will load only what their spectated player sees, while it's being updated at the same time.
 If disabled, all spectators will have all of the schematics spawned everytime whoever they spectated.
 The only downside of enabling it is that when spectating new players, their corresponding primitives takes some times to spawn and as such it could be disturbing to watch.
 [![Plugin Preview](https://github.com/MathMot/MEROptimizer/blob/dev/doc/ssbabds.gif?raw=true)]()
 
-### <b><span style="color:lightgreen">number_of_primitive_per_spawn</span></b>
+### <b><code style="color : greenyellow">number_of_primitive_per_spawn</code></b>
 
 When a cluster has to spawn primitives, a fade option is available so that primitives takes multiple frame to spawn, preventing unpleasant freezes from players when trying to load a huge amount of primitives/clusters.
 The recommended value is between 0.2 and 1 primitive.
@@ -131,18 +131,18 @@ The recommended value is between 0.2 and 1 primitive.
 0.1 ... 0.9 = 1 spawn each X frames (0.2 = 1 spawn every 2 frames)
 1 ... ∞ = X spawn per frame (2 = 2 spawn per frame)
 
-### <b><span style="color:lightgreen">minimum_size_before_being_big_primitive</span></b>
+### <b><code style="color : greenyellow">minimum_size_before_being_big_primitive</code></b>
 Big primitives ( such as walls, roofs, stuff like that ) are not clustered by default, simply because huge objects are more likely needed to be seen from far away, and it doesn't match with how the cluster optimisation work
 So, if a primitive total scale (x+y+z) is higher than this value, it will not be in any cluster and will be spawned for each players independently from where they're located.
 
  # -------------Clusters Options-------------
 ###### Clusters works via an algorithm that, starting from the center of the schematic, get every primitives around it within a specified distance until it's full, if there are no more primitives to get around it or if it's full, another cluster will be spawned based on the closest primitive of the center that is not in a cluster yet, and start again
 
-### <b><span style="color:lightgreen">max_distance_for_primitive_cluster</span></b>
+### <b><code style="color : greenyellow">max_distance_for_primitive_cluster</code></b>
 The maximum distance where primitives can enter a cluster.
 The higher the value the more primitives will enter, lowering the quality of the client side optimization.
 
-### <b><span style="color:lightgreen">max_primitives_per_cluster</span></b>
+### <b><code style="color : greenyellow">max_primitives_per_cluster</code></b>
 Maximum number of primitives that can enter a cluster
 The higher the value the more primitives can enter a cluster, lowering the quality of the client side optimization.
 
