@@ -25,13 +25,13 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public DateTime spawnTime { get; set; }
 
-    public int schematicServerSidePrimitiveCount { get; set; }
+    public int schematicServerSidePrimitiveCount { get; set; } = -1;
 
     public int GetTotalPrimitiveCount()
     {
       int count = nonClusteredPrimitives.Count;
 
-      foreach(PrimitiveCluster cluster in primitiveClusters)
+      foreach (PrimitiveCluster cluster in primitiveClusters)
       {
         count += cluster.primitives.Count;
       }
@@ -43,6 +43,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       bool doClusters = false, float distance = 50, List<string> excludedUnspawnObjects = null, int maxDistanceForPrimitiveCluster = 5,
       int maxPrimitivesPerCluster = 200)
     {
+
       this.schematic = schematic;
       this.colliders = colliders;
       spawnTime = DateTime.Now;
@@ -69,13 +70,26 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       else
       {
 
-        // Remove non clustered primitives
+        // Remove non clustered primitives and big objects
         foreach (ClientSidePrimitive primitive in primitives.Keys.ToList())
         {
           if (!primitives[primitive])
           {
             nonClusteredPrimitives.Add(primitive);
             primitives.Remove(primitive);
+          }
+          else
+          {
+            if (MEROptimizer.MinimumSizeBeforeBeingBigPrimitive > 0)
+            {
+              Vector3 size = primitive.scale;
+
+              if (Math.Abs(size.x) + Math.Abs(size.y) + Math.Abs(size.z) > MEROptimizer.MinimumSizeBeforeBeingBigPrimitive)
+              {
+                nonClusteredPrimitives.Add(primitive);
+                primitives.Remove(primitive);
+              }
+            }
           }
         }
 
@@ -137,8 +151,6 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           //Creates the Gameobjects for the clusters
           foreach (KeyValuePair<int, List<ClientSidePrimitive>> cluster in clusters)
           {
-
-
             // Get the center of the cluster
 
             Vector3 center = Vector3.zero;

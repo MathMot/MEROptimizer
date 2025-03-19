@@ -41,9 +41,14 @@ namespace MEROptimizer
     "If enabled, when a player spectates another, it will spawn all of the primitives that the spectated player currently sees, otherwise spectators will see all of the schematics at all time")]
     public bool ShouldSpectatorBeAffectedByDistanceSpawning { get; set; } = false;
 
+    [Description("Minimum size of a primitive before being considered as a big one (size = (scale.x + y + z) )\n" +
+      "Huge objects don't work with the cluster system and so they need to be excluded, prevents having to manually exclude each walls/floors of schematics\n" +
+      "Set to zero (0) to disable it, not recommended")]
+    public float MinimumSizeBeforeBeingBigPrimitive{ get; set; } = 10f;
+
     [Description("For each cluster, number of primitives that'll spawn per server frame (higher count means quicker spawn but potential freezes for clients)" +
-      "If set to zero (0), each cluster will spawn its primitives instantly")]
-    public int numberOfPrimitivePerSpawn { get; set; } = 1;
+      "If set to zero (0), each cluster will spawn its primitives instantly, 0.5 means 1 primitive each 2 frames, etc")]
+    public float numberOfPrimitivePerSpawn { get; set; } = .3f;
 
     [Description("\n-----Clusters Options-----\n" +
       "In units, the maximum distance between a primitive and a specific cluster to be included in it, the more distance the less cluster will spawn")]

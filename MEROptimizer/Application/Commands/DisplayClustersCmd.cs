@@ -16,7 +16,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
 
     public string[] Aliases { get; } = new string[] { "mero.dpc" };
 
-    public string Description { get; } = "Display or not all clusters radius of schematics for you only";
+    public string Description { get; } = "Display or not all clusters radius of schematics for you only (not accurate)";
 
     public string[] Usage { get; } = new string[] { "Display or hide (true/false)" };
 

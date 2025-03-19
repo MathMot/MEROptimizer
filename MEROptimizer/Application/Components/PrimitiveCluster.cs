@@ -22,15 +22,31 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     private bool instantSpawn;
 
-    private int numberOfPrimitivePerSpawn;
+    private float numberOfPrimitivePerSpawn;
+
+    private int updatePassed = 0;
+
+    private bool multiFrameSpawn = false;
+
+    private bool spawning = false;
 
     public void Start()
     {
-      instantSpawn =  MEROptimizer.numberOfPrimitivePerSpawn <= 0;
-      numberOfPrimitivePerSpawn = MEROptimizer.numberOfPrimitivePerSpawn;
+      instantSpawn =  MEROptimizer.numberOfPrimitivePerSpawn == 0;
+
+      if (MEROptimizer.numberOfPrimitivePerSpawn < 1 && MEROptimizer.numberOfPrimitivePerSpawn > 0)
+      {
+        numberOfPrimitivePerSpawn = MEROptimizer.numberOfPrimitivePerSpawn * 10;
+        multiFrameSpawn = true;
+      }
+      else
+      {
+        numberOfPrimitivePerSpawn = MEROptimizer.numberOfPrimitivePerSpawn;
+      }
+
       float radius = this.GetComponent<SphereCollider>().radius;
       displayClusterPrimitive = new ClientSidePrimitive(this.transform.position - new Vector3(0, 2000, 0),
-        this.transform.rotation, Vector3.one * (radius / 2), PrimitiveType.Sphere, new Color(1, 0, 0, .5f), PrimitiveFlags.Visible);
+        this.transform.rotation, Vector3.one * (radius), PrimitiveType.Sphere, new Color(1, 0, 1, .4f), PrimitiveFlags.Visible);
     }
 
     public void OnDestroy()
@@ -63,11 +79,11 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           awaitingSpawn.Remove(player);
 
           awaitingSpawn.Add(player, primitives.ToList());
+
+          spawning = true;
         }
 
       }
-
-
 
       if (!insidePlayers.Contains(player)) {
         insidePlayers.Add(player);
@@ -77,7 +93,24 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void Update()
     {
+      if (!spawning) return;
+
       if (instantSpawn) return;
+
+      if (multiFrameSpawn)
+      {
+        updatePassed++;
+        if (updatePassed < numberOfPrimitivePerSpawn) return;
+        updatePassed = 0;
+
+      }
+
+      if (awaitingSpawn.Count == 0) {
+
+        spawning = false;
+
+      }
+
       foreach (Player player in awaitingSpawn.Keys.ToList())
       {
         List<ClientSidePrimitive> list = awaitingSpawn[player];
@@ -90,8 +123,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
         List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
 
-        // 1 = config, number of prim spawned per frame
-        for (int i = 0; i < numberOfPrimitivePerSpawn; i++)
+        for (int i = 0; i < (multiFrameSpawn ? 1 : numberOfPrimitivePerSpawn) ; i++)
         {
           ClientSidePrimitive prim = list.First();
 

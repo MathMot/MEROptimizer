@@ -55,9 +55,13 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private List<string> excludedNamesForUnspawningDistantObjects;
 
-    public static int numberOfPrimitivePerSpawn;
+    public static float numberOfPrimitivePerSpawn;
+
+    public static float MinimumSizeBeforeBeingBigPrimitive;
+
 
     public static bool isDynamiclyDisabled = false;
+
 
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
@@ -73,6 +77,7 @@ namespace MEROptimizer.MEROptimizer.Application
       maxPrimitivesPerCluster = config.MaxPrimitivesPerCluster;
       shouldSpectatorsBeAffectedByPDS = config.ShouldSpectatorBeAffectedByDistanceSpawning;
       numberOfPrimitivePerSpawn = config.numberOfPrimitivePerSpawn;
+      MinimumSizeBeforeBeingBigPrimitive = config.MinimumSizeBeforeBeingBigPrimitive;
 
       // Exiled Events
 
@@ -350,8 +355,6 @@ namespace MEROptimizer.MEROptimizer.Application
 
       if (primitivesToOptimize == null || primitivesToOptimize.IsEmpty()) return;
 
-      int totalPrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObject>().Count();
-
       Dictionary<ClientSidePrimitive, bool> clientSidePrimitive = new Dictionary<ClientSidePrimitive, bool>();
 
       List<Collider> serverSideColliders = new List<Collider>();
@@ -416,19 +419,21 @@ namespace MEROptimizer.MEROptimizer.Application
 
       OptimizedSchematic schematic = new OptimizedSchematic(ev.Schematic, serverSideColliders, clientSidePrimitive,
         hideDistantPrimitives, distanceRequiredForUnspawning, excludedNamesForUnspawningDistantObjects,
-        maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster)
-      {
-        schematicServerSidePrimitiveCount = totalPrimitiveCount
-
-      };
+        maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster);
 
       optimizedSchematics.Add(schematic);
-      Timing.CallDelayed(1f, () =>
-      {
+
         if (ev.Schematic == null) return;
         Log.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
         DestroyPrimitives(ev.Schematic, primitivesToDestroy);
+
+      Timing.CallDelayed(1f, () =>
+      {
+        if (schematic == null || ev.Schematic == null) return;
+        schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObject>().Count();
       });
+
+
 
     }
 
