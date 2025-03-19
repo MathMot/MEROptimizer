@@ -194,7 +194,8 @@ namespace MEROptimizer.MEROptimizer.Application
         }
       }
 
-      return GetPrimitivesToOptimize(null, parentToExclude, primitives);
+      //return GetPrimitivesToOptimize(null, parentToExclude, primitives);
+      return primitives;
     }
 
     // --------------- Events
@@ -210,18 +211,23 @@ namespace MEROptimizer.MEROptimizer.Application
     }
 
     //--------------- Events EXILED
-    private void OnVerified(VerifiedEventArgs ev)
-    {
-      if (ev.Player == null || !ev.Player.IsVerified) return;
 
-      GameObject playerTrigger = new GameObject($"{ev.Player.Id}_MERO_TRIGGER");
-      playerTrigger.transform.parent = ev.Player.GameObject.transform;
+    private void AddPlayerTrigger(Player player)
+    {
+      GameObject playerTrigger = new GameObject($"{player.Id}_MERO_TRIGGER");
+      playerTrigger.transform.parent = player.GameObject.transform;
       playerTrigger.transform.localPosition = new Vector3(0, 2000, 0);
       playerTrigger.tag = "Player";
       Rigidbody rb = playerTrigger.AddComponent<Rigidbody>();
       rb.isKinematic = true;
       playerTrigger.AddComponent<BoxCollider>();
 
+    }
+    private void OnVerified(VerifiedEventArgs ev)
+    {
+      if (ev.Player == null || !ev.Player.IsVerified) return;
+
+      AddPlayerTrigger(ev.Player);
       foreach (OptimizedSchematic schematic in optimizedSchematics)
       {
         schematic.SpawnClientPrimitives(ev.Player);
@@ -230,31 +236,59 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private void OnSpawned(SpawnedEventArgs ev)
     {
-      if (ev.Player == null || !ev.Player.IsVerified) return;
+      if (ev.Player == null) return;
 
-      if (!shouldSpectatorsBeAffectedByPDS)
+      if (!ev.Player.IsVerified)
       {
-        // just spawned as a spectator, we spawn all clusters primitives for him
-        if (ev.Player.Role.Type == RoleTypeId.Spectator)
+        if (ev.Player.IsNPC)
         {
-          foreach (OptimizedSchematic schematic in optimizedSchematics)
+          bool hasFound = false;
+
+          for(int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
           {
-            foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+            Transform child = ev.Player.GameObject.transform.GetChild(i);
+            if (child != null && child.name == $"{ev.Player.Id}_MERO_TRIGGER")
             {
-              cluster.SpawnFor(ev.Player);
+              hasFound = true;
+              break;
             }
           }
-        } // the player just spawned and was a spectator
-        else if (ev.OldRole.Type == RoleTypeId.Spectator)
-        {
-          foreach (OptimizedSchematic schematic in optimizedSchematics)
+
+          if (!hasFound)
           {
-            foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+            AddPlayerTrigger(ev.Player);
+          }
+        }
+
+      }
+      else
+      {
+
+        if (!shouldSpectatorsBeAffectedByPDS)
+        {
+          // just spawned as a spectator, we spawn all clusters primitives for him
+          if (ev.Player.Role.Type == RoleTypeId.Spectator)
+          {
+            foreach (OptimizedSchematic schematic in optimizedSchematics)
             {
-              cluster.UnspawnFor(ev.Player);
+              foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+              {
+                cluster.SpawnFor(ev.Player);
+              }
+            }
+          } // the player just spawned and was a spectator
+          else if (ev.OldRole.Type == RoleTypeId.Spectator)
+          {
+            foreach (OptimizedSchematic schematic in optimizedSchematics)
+            {
+              foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+              {
+                cluster.UnspawnFor(ev.Player);
+              }
             }
           }
         }
+
       }
     }
 
@@ -262,18 +296,18 @@ namespace MEROptimizer.MEROptimizer.Application
     {
       if (shouldSpectatorsBeAffectedByPDS)
       {
-        if (ev.Player == null || !ev.Player.IsVerified) return;
+        if (ev.Player == null || (!ev.Player.IsVerified && !ev.Player.IsNPC) || ev.NewTarget == null) return;
 
         foreach (OptimizedSchematic schematic in optimizedSchematics)
         {
           foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
           {
-            if (ev.OldTarget != null && cluster.insidePlayers.Contains(ev.OldTarget))
+            if (ev.OldTarget != null && (cluster.insidePlayers.Contains(ev.OldTarget) && !cluster.insidePlayers.Contains(ev.NewTarget)))
             {
               cluster.UnspawnFor(ev.Player);
             }
 
-            if (ev.NewTarget != null && cluster.insidePlayers.Contains(ev.NewTarget))
+            if (ev.NewTarget != null && cluster.insidePlayers.Contains(ev.NewTarget) && (ev.OldTarget == null || !cluster.insidePlayers.Contains(ev.OldTarget)))
             {
               cluster.SpawnFor(ev.Player);
             }

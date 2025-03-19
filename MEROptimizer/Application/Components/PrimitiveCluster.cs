@@ -42,9 +42,14 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       if (collider == null || collider.transform.parent == null) return;
       if (!collider.CompareTag("Player") || !Player.TryGet(collider.transform.parent.gameObject, out Player player)) return;
 
-      awaitingSpawn.Remove(player);
+      if (!player.IsNPC)
+      {
+        awaitingSpawn.Remove(player);
 
-      awaitingSpawn.Add(player, primitives.ToList());
+        awaitingSpawn.Add(player, primitives.ToList());
+      }
+
+
 
       if (!insidePlayers.Contains(player)) {
         insidePlayers.Add(player);
@@ -64,6 +69,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           break;
         }
 
+        List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
+
         // 1 = config, number of prim spawned per frame
         for (int i = 0; i < 1; i++)
         {
@@ -72,6 +79,11 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           list.Remove(prim);
 
           prim.SpawnClientPrimitive(player);
+
+          foreach(Player p in spectatingPlayers)
+          {
+            prim.SpawnClientPrimitive(p);
+          }
         }
 
 
@@ -95,6 +107,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void SpawnFor(Player player)
     {
+      if (player == null || !player.IsVerified) return;
       foreach (ClientSidePrimitive primitive in primitives)
       {
         primitive.SpawnClientPrimitive(player);
@@ -103,10 +116,20 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void UnspawnFor(Player player)
     {
+      if (player == null || !player.IsVerified) return;
+
+      List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
       foreach (ClientSidePrimitive primitive in primitives)
       {
         primitive.DestroyClientPrimitive(player);
+
+        foreach(Player p in spectatingPlayers)
+        {
+          primitive.DestroyClientPrimitive(p);
+        }
       }
+
+
     }
 
     public void DisplayRadius(Player player)
