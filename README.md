@@ -30,6 +30,8 @@ You can ask me questions on discord (matmoth)
 - <b>mero.displayPrimitives</b> : Display or destroy all of the client side primitives for the sender
 - <b>mero.info</b> : Displays information about all schematics ( Total primitive count, client side primitive count, colliders count, etc)
 - <b>mero.realtimedisplay</b> : Displays as hints the number of currently loaded primitives for the sender
+![](https://github.com/MathMot/MEROptimizer/blob/dev/doc/rtdp.PNG?raw=true)
+*what mero.realtimedisplay shows to a player, refreshing every seconds*
 
 ---
 
