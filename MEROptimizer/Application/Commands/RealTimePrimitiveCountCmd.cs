@@ -12,9 +12,9 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
   [CommandHandler(typeof(RemoteAdminCommandHandler))]
   public class RealTimePrimitiveCountCmd : ICommand
   {
-    public string Command { get; } = "mero.displayRealTimePrimitives";
+    public string Command { get; } = "mero.realtimedisplay";
 
-    public string[] Aliases { get; } = new string[] { "mero.dprtp" };
+    public string[] Aliases { get; } = new string[] { "mero.rtdp" };
 
     public string Description { get; } = "Displays (or remove) the total count of primitives currently loaded to you every seconds";
 
