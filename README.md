@@ -4,8 +4,8 @@
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
 It also supports a feature to dynamicly spawn primitives around players.
 You can ask me questions on discord (matmoth)
+[![](https://github.com/MathMot/MEROptimizer/blob/dev/doc/PDSDisplay.gif?raw=true)](PDS Display)
 
-  <img src="https://i.imgur.com/SuUNTRJ.gif" width="700" />
 
 Features : 
 ---
