@@ -103,7 +103,7 @@ All of the primitives that have at least one of its parent  that contains "Exclu
 Example : <br>
 [![Example](https://github.com/MathMot/MEROptimizer/blob/dev/doc/optimizedExample.png?raw=true)]()
 
- # -------------Schematic cluster splitting options-------------
+ # --------Schematic cluster splitting options--------
 
 ### <b><span style="color:lightgreen">clusterize_schematic</span></b>
 If enable, the clutter system will be enabled.
