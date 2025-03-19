@@ -423,9 +423,9 @@ namespace MEROptimizer.MEROptimizer.Application
 
       optimizedSchematics.Add(schematic);
 
-        if (ev.Schematic == null) return;
-        Log.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
-        DestroyPrimitives(ev.Schematic, primitivesToDestroy);
+      if (ev.Schematic == null) return;
+      Log.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
+      DestroyPrimitives(ev.Schematic, primitivesToDestroy);
 
       Timing.CallDelayed(1f, () =>
       {

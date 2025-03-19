@@ -30,11 +30,11 @@ namespace MEROptimizer.MEROptimizer.Application.Components
         int count = 0;
         int totalPrimitiveCount = 0;
 
-        foreach(OptimizedSchematic schematic in Plugin.merOptimizer.optimizedSchematics)
+        foreach (OptimizedSchematic schematic in Plugin.merOptimizer.optimizedSchematics)
         {
           count += schematic.nonClusteredPrimitives.Count;
           totalPrimitiveCount += (schematic.schematicServerSidePrimitiveCount + schematic.nonClusteredPrimitives.Count);
-          foreach(PrimitiveCluster cluster in schematic.primitiveClusters)
+          foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
           {
             if (cluster.insidePlayers.Contains(player))
             {

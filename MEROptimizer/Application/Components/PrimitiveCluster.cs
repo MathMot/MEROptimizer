@@ -32,7 +32,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void Start()
     {
-      instantSpawn =  MEROptimizer.numberOfPrimitivePerSpawn == 0;
+      instantSpawn = MEROptimizer.numberOfPrimitivePerSpawn == 0;
 
       if (MEROptimizer.numberOfPrimitivePerSpawn < 1 && MEROptimizer.numberOfPrimitivePerSpawn > 0)
       {
@@ -85,7 +85,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
       }
 
-      if (!insidePlayers.Contains(player)) {
+      if (!insidePlayers.Contains(player))
+      {
         insidePlayers.Add(player);
       }
 
@@ -105,7 +106,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
       }
 
-      if (awaitingSpawn.Count == 0) {
+      if (awaitingSpawn.Count == 0)
+      {
 
         spawning = false;
 
@@ -123,7 +125,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
         List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
 
-        for (int i = 0; i < (multiFrameSpawn ? 1 : numberOfPrimitivePerSpawn) ; i++)
+        for (int i = 0; i < (multiFrameSpawn ? 1 : numberOfPrimitivePerSpawn); i++)
         {
           ClientSidePrimitive prim = list.First();
 
@@ -131,7 +133,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
           prim.SpawnClientPrimitive(player);
 
-          foreach(Player p in spectatingPlayers)
+          foreach (Player p in spectatingPlayers)
           {
             prim.SpawnClientPrimitive(p);
           }
@@ -174,7 +176,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       {
         primitive.DestroyClientPrimitive(player);
 
-        foreach(Player p in spectatingPlayers)
+        foreach (Player p in spectatingPlayers)
         {
           primitive.DestroyClientPrimitive(p);
         }

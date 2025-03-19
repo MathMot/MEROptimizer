@@ -41,7 +41,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
         playerDisplayHint.RemoveComponent();
       }
 
-      response = $"{(hasComponent ? "Removed your constant primitive count display !":"Adding a constant primitive count display !" )}";
+      response = $"{(hasComponent ? "Removed your constant primitive count display !" : "Adding a constant primitive count display !")}";
 
       return true;
     }
