@@ -4,8 +4,7 @@
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
 It also supports a feature to dynamicly spawn primitives around players.
 You can ask me questions on discord (matmoth)
-[![](https://github.com/MathMot/MEROptimizer/blob/dev/doc/PDSDisplay.gif?raw=true)](PDS Display)
-
+[![Plugin Preview](https://github.com/MathMot/MEROptimizer/blob/dev/doc/PDSDisplay.gif?raw=true)]()
 
 Features : 
 ---
@@ -25,7 +24,7 @@ Features :
 
 mero\.info (dprtp)             |  mero.realtimedisplay 
 :-------------------------:|:---------------------------:|
-Displays information about all of the spawned schematics<br><img style="display: flex , and align-items: center" src="https://i.imgur.com/v6NE7uL.png" width="500" /><br><br><br> |  Starts to display as a hint the number of primitives loaded for your client.<br>Updating every seconds<br><img style="display: flex , and align-items: center" src="https://i.imgur.com/mRGtQVg.gif" width="500" /><br> 
+Displays information about all of the spawned schematics<br><img style="display: flex , and align-items: center" src="https://i.imgur.com/v6NE7uL.png" width="500" /><br><br><br> |  Starts to display as a hint the number of primitives loaded for your client.<br>Updating every seconds<br><img style="display: flex , and align-items: center" src="https://github.com/MathMot/MEROptimizer/blob/dev/doc/PDSDisplay.gif?raw=true" width="500" /><br> 
 
 
 
