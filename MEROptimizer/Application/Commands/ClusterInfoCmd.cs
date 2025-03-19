@@ -36,7 +36,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
 
         foreach (PrimitiveCluster cluster in os.primitiveClusters)
         {
-          message += $"\nId : {cluster.id} | Number of primitives : {cluster.primitives.Count}";
+          message += $"\nId : {cluster.id} | Pos : {cluster.transform.position} | Number of primitives : {cluster.primitives.Count}";
         }
       }
 

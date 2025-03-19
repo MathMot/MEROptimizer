@@ -96,6 +96,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void SpawnClientPrimitive(Player target)
     {
+      //DestroyClientPrimitive(target);
       target?.Connection?.Send(spawnMessage);
     }
   }

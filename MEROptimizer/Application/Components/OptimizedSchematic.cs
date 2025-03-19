@@ -25,9 +25,19 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public DateTime spawnTime { get; set; }
 
-    public int schematicsTotalPrimitives { get; set; }
+    public int schematicServerSidePrimitiveCount { get; set; }
 
-    public int serverSpawnedPrimitives => schematicsTotalPrimitives - nonClusteredPrimitives.Count;
+    public int GetTotalPrimitiveCount()
+    {
+      int count = nonClusteredPrimitives.Count;
+
+      foreach(PrimitiveCluster cluster in primitiveClusters)
+      {
+        count += cluster.primitives.Count;
+      }
+
+      return count;
+    }
 
     public OptimizedSchematic(SchematicObject schematic, List<Collider> colliders, Dictionary<ClientSidePrimitive, bool> primitives,
       bool doClusters = false, float distance = 50, List<string> excludedUnspawnObjects = null, int maxDistanceForPrimitiveCluster = 5,
@@ -225,9 +235,9 @@ namespace MEROptimizer.MEROptimizer.Application.Components
         primitive.DestroyForEveryone();
       }
 
-      foreach (PrimitiveCluster cluster in primitiveClusters)
+      foreach (PrimitiveCluster cluster in primitiveClusters.Where(c => c != null && c.gameObject != null))
       {
-        UnityEngine.Object.Destroy(cluster.gameObject);
+        UnityEngine.Object.Destroy(cluster);
       }
 
       Log.Debug($"Destroyed client side schematic {schematicName} !");

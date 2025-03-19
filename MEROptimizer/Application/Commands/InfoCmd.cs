@@ -28,15 +28,29 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
 
       string message = "";
 
+      int serverSidePrimitives = 0;
+      int clientSidePrimitives = 0;
+
+      foreach (OptimizedSchematic os in Plugin.merOptimizer.optimizedSchematics)
+      {
+        serverSidePrimitives += os.schematicServerSidePrimitiveCount;
+        clientSidePrimitives += os.GetTotalPrimitiveCount();
+      }
+
+      message = $"Total of server sided primitives : {serverSidePrimitives}\n" +
+        $"Total of client side primitives : {clientSidePrimitives}\n" +
+        $"Total of primitives {serverSidePrimitives + clientSidePrimitives}" +
+        $"\n----------------\n";
+
       foreach (OptimizedSchematic os in Plugin.merOptimizer.optimizedSchematics)
       {
         message +=
           $"Schematic : {os.schematic.name}\n" +
-          $"Spawned at {os.spawnTime.ToShortTimeString()}\n" +
-          $"Total primitive : {os.schematicsTotalPrimitives}\n" +
-          $"Client side primitive count: {os.nonClusteredPrimitives.Count}\n" +
-          $"Server side primitive count: {os.serverSpawnedPrimitives}\n" +
-          $"Number of server side colliders : {os.colliders.Count}\n"+
+          $"Spawned at {os.spawnTime.ToLongTimeString()}\n" +
+          $"Total primitive count : {os.GetTotalPrimitiveCount() + os.schematicServerSidePrimitiveCount}\n" +
+          $"Client side primitive count: {os.GetTotalPrimitiveCount()}\n" +
+          $"Server side primitive count: {os.schematicServerSidePrimitiveCount}\n" +
+          $"Number of server side colliders : {os.colliders.Count}\n" +
           $"Number of clusters : {os.primitiveClusters.Count}\n----------------\n";
       }
 

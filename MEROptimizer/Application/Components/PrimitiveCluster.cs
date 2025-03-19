@@ -20,8 +20,14 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public List<Player> insidePlayers = new List<Player>();
 
+    private bool instantSpawn;
+
+    private int numberOfPrimitivePerSpawn;
+
     public void Start()
     {
+      instantSpawn =  MEROptimizer.numberOfPrimitivePerSpawn <= 0;
+      numberOfPrimitivePerSpawn = MEROptimizer.numberOfPrimitivePerSpawn;
       float radius = this.GetComponent<SphereCollider>().radius;
       displayClusterPrimitive = new ClientSidePrimitive(this.transform.position - new Vector3(0, 2000, 0),
         this.transform.rotation, Vector3.one * (radius / 2), PrimitiveType.Sphere, new Color(1, 0, 0, .5f), PrimitiveFlags.Visible);
@@ -42,11 +48,23 @@ namespace MEROptimizer.MEROptimizer.Application.Components
       if (collider == null || collider.transform.parent == null) return;
       if (!collider.CompareTag("Player") || !Player.TryGet(collider.transform.parent.gameObject, out Player player)) return;
 
+      // Prevents desync (using commands or mirrors skill issue), dosn't seems to happen without using dp commands
+      // UnspawnFor(player);
+
+
       if (!player.IsNPC)
       {
-        awaitingSpawn.Remove(player);
+        if (instantSpawn)
+        {
+          SpawnFor(player);
+        }
+        else
+        {
+          awaitingSpawn.Remove(player);
 
-        awaitingSpawn.Add(player, primitives.ToList());
+          awaitingSpawn.Add(player, primitives.ToList());
+        }
+
       }
 
 
@@ -59,6 +77,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public void Update()
     {
+      if (instantSpawn) return;
       foreach (Player player in awaitingSpawn.Keys.ToList())
       {
         List<ClientSidePrimitive> list = awaitingSpawn[player];
@@ -72,7 +91,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
         List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
 
         // 1 = config, number of prim spawned per frame
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < numberOfPrimitivePerSpawn; i++)
         {
           ClientSidePrimitive prim = list.First();
 

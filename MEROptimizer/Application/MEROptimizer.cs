@@ -55,6 +55,8 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private List<string> excludedNamesForUnspawningDistantObjects;
 
+    public static int numberOfPrimitivePerSpawn;
+
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
@@ -62,12 +64,13 @@ namespace MEROptimizer.MEROptimizer.Application
       excludeCollidables = config.OptimizeOnlyNonCollidable;
       excludedNames = config.excludeObjects;
 
-      hideDistantPrimitives = config.HideDistantPrimitivesToPlayers;
-      distanceRequiredForUnspawning = config.DistanceRequiredForUnspawningPrimitives;
+      hideDistantPrimitives = config.ClusterizeSchematic;
+      distanceRequiredForUnspawning = config.SpawnDistance;
       excludedNamesForUnspawningDistantObjects = config.excludeUnspawningDistantObjects;
       maxDistanceForPrimitiveCluster = config.MaxDistanceForPrimitiveCluster;
       maxPrimitivesPerCluster = config.MaxPrimitivesPerCluster;
       shouldSpectatorsBeAffectedByPDS = config.ShouldSpectatorsBeAffectByPDS;
+      numberOfPrimitivePerSpawn = config.numberOfPrimitivePerSpawn;
 
       // Exiled Events
 
@@ -167,7 +170,6 @@ namespace MEROptimizer.MEROptimizer.Application
 
         if (child.TryGetComponent(out PrimitiveObject primitive))
         {
-
           // Keep the quads/planes, colliders are buggy
 
           if ((primitive.Primitive.Type == PrimitiveType.Quad || primitive.Primitive.Type == PrimitiveType.Plane)
@@ -189,7 +191,7 @@ namespace MEROptimizer.MEROptimizer.Application
         {
           if (!excludedNames.Any(n => child.name.ToLower().Contains(n.ToLower())))
           {
-            GetPrimitivesToOptimize(child, parentToExclude, primitives);
+            GetPrimitivesToOptimize(child, parentToExclude, primitives, clusterChilds: clusterChilds);
           }
         }
       }
@@ -244,7 +246,7 @@ namespace MEROptimizer.MEROptimizer.Application
         {
           bool hasFound = false;
 
-          for(int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
+          for (int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
           {
             Transform child = ev.Player.GameObject.transform.GetChild(i);
             if (child != null && child.name == $"{ev.Player.Id}_MERO_TRIGGER")
@@ -373,7 +375,7 @@ namespace MEROptimizer.MEROptimizer.Application
         if (primitiveFlags.HasFlag(PrimitiveFlags.Collidable))
         {
           GameObject collider = new GameObject();
-          collider.transform.localScale = scale;
+          collider.transform.localScale = new Vector3(Math.Abs(scale.x), Math.Abs(scale.y), Math.Abs(scale.z));
           collider.transform.position = position;
           collider.transform.rotation = rotation;
           collider.transform.name = $"[MEROCOLLIDER] {primitive.transform.name}";
@@ -410,7 +412,7 @@ namespace MEROptimizer.MEROptimizer.Application
         hideDistantPrimitives, distanceRequiredForUnspawning, excludedNamesForUnspawningDistantObjects,
         maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster)
       {
-        schematicsTotalPrimitives = totalPrimitiveCount
+        schematicServerSidePrimitiveCount = totalPrimitiveCount
 
       };
 
@@ -435,7 +437,7 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private void OnSchematicDestroyed(SchematicDestroyedEventArgs ev)
     {
-      foreach (OptimizedSchematic optimizedSchematic in optimizedSchematics.ToList())
+      foreach (OptimizedSchematic optimizedSchematic in optimizedSchematics.Where(s => s != null).ToList())
       {
         if (optimizedSchematic.schematic == null || optimizedSchematic.schematic == ev.Schematic)
         {
@@ -443,6 +445,7 @@ namespace MEROptimizer.MEROptimizer.Application
           optimizedSchematics.Remove(optimizedSchematic);
         }
       }
+      optimizedSchematics.Clear();
     }
 
   }

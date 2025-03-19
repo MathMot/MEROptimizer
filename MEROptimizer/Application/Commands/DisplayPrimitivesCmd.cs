@@ -1,6 +1,7 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
 using Exiled.API.Features.Pickups;
+using MEC;
 using MEROptimizer.MEROptimizer.Application.Components;
 using System;
 using System.Collections.Generic;
@@ -40,30 +41,37 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
         return false;
       }
 
+      List<OptimizedSchematic> hiddenSchematics = new List<OptimizedSchematic>();
+
       foreach (OptimizedSchematic optimizedSchematic in Plugin.merOptimizer.optimizedSchematics)
       {
-        if (display)
+        if (display) hiddenSchematics.Add(optimizedSchematic);
+        optimizedSchematic.HideFor(player);
+
+        foreach (PrimitiveCluster cluster in optimizedSchematic.primitiveClusters)
         {
-          optimizedSchematic.RefreshFor(player);
-
-          foreach (PrimitiveCluster cluster in optimizedSchematic.primitiveClusters)
-          {
-            cluster.UnspawnFor(player);
-            cluster.SpawnFor(player);
-          }
+          cluster.UnspawnFor(player);
         }
-        else
-        {
-          optimizedSchematic.HideFor(player);
-
-          foreach (PrimitiveCluster cluster in optimizedSchematic.primitiveClusters)
-          {
-            cluster.UnspawnFor(player);
-          }
-        }
-
       }
-      response = $"Succesfully hidden all of the optimized schematics !";
+
+      if (display)
+      {
+        Timing.CallDelayed(.5f, () =>
+        {
+          foreach (OptimizedSchematic optimizedSchematic in hiddenSchematics)
+          {
+            optimizedSchematic.RefreshFor(player);
+
+            foreach (PrimitiveCluster cluster in optimizedSchematic.primitiveClusters)
+            {
+              cluster.SpawnFor(player);
+            }
+          }
+        });
+      }
+
+
+      response = $"Succesfully {(display ? "displayed(.5 seconds delay)" : "hidden")} all of the optimized schematics !";
 
       return true;
     }
