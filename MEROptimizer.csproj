@@ -117,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MEROptimizer\Application\Commands\ClusterInfoCmd.cs" />
+    <Compile Include="MEROptimizer\Application\Commands\DisablePluginCmd.cs" />
     <Compile Include="MEROptimizer\Application\Commands\DisplayClustersCmd.cs" />
     <Compile Include="MEROptimizer\Application\Commands\InfoCmd.cs" />
     <Compile Include="MEROptimizer\Application\Commands\DisplayPrimitivesCmd.cs" />

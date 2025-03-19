@@ -57,6 +57,8 @@ namespace MEROptimizer.MEROptimizer.Application
 
     public static int numberOfPrimitivePerSpawn;
 
+    public static bool isDynamiclyDisabled = false;
+
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
@@ -69,7 +71,7 @@ namespace MEROptimizer.MEROptimizer.Application
       excludedNamesForUnspawningDistantObjects = config.excludeUnspawningDistantObjects;
       maxDistanceForPrimitiveCluster = config.MaxDistanceForPrimitiveCluster;
       maxPrimitivesPerCluster = config.MaxPrimitivesPerCluster;
-      shouldSpectatorsBeAffectedByPDS = config.ShouldSpectatorsBeAffectByPDS;
+      shouldSpectatorsBeAffectedByPDS = config.ShouldSpectatorBeAffectedByDistanceSpawning;
       numberOfPrimitivePerSpawn = config.numberOfPrimitivePerSpawn;
 
       // Exiled Events
@@ -323,7 +325,11 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
     {
-
+      if (isDynamiclyDisabled)
+      {
+        Log.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
+        return;
+      }
       if (!hasGenerated)
       {
         Log.Error($"Unable to generate Optimized Schematic for {ev.Schematic.Name} because mesh filters are not generated yet !");
@@ -445,7 +451,6 @@ namespace MEROptimizer.MEROptimizer.Application
           optimizedSchematics.Remove(optimizedSchematic);
         }
       }
-      optimizedSchematics.Clear();
     }
 
   }

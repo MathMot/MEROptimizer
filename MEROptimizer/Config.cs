@@ -37,13 +37,13 @@ namespace MEROptimizer
     [Description("In units, the distance required for a cluster to spawn/unspawn its primitives to the corresponding player")]
     public float SpawnDistance { get; set; } = 50;
 
+    [Description("Should spectating players be also affected by the cluster system" +
+    "If enabled, when a player spectates another, it will spawn all of the primitives that the spectated player currently sees, otherwise spectators will see all of the schematics at all time")]
+    public bool ShouldSpectatorBeAffectedByDistanceSpawning { get; set; } = false;
+
     [Description("For each cluster, number of primitives that'll spawn per server frame (higher count means quicker spawn but potential freezes for clients)" +
       "If set to zero (0), each cluster will spawn its primitives instantly")]
     public int numberOfPrimitivePerSpawn { get; set; } = 1;
-
-    [Description("Should spectating players be also affected by the cluster system" +
-      "If enabled, when a player spectates another, it will spawn all of the primitives that the spectated player currently sees")]
-    public bool ShouldSpectatorsBeAffectByPDS { get; set; } = false;
 
     [Description("\n-----Clusters Options-----\n" +
       "In units, the maximum distance between a primitive and a specific cluster to be included in it, the more distance the less cluster will spawn")]
