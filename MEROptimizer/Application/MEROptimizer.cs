@@ -347,7 +347,12 @@ namespace MEROptimizer.MEROptimizer.Application
 
       if (ev.Schematic == null) return;
 
-      List<Transform> parentsToExlude = new List<Transform>();
+      if (excludedNames.Any(n => ev.Schematic.Name.Contains(n)))
+      {
+        return;
+      }
+
+        List<Transform> parentsToExlude = new List<Transform>();
 
       foreach (Animator anim in ev.Schematic.GetComponentsInChildren<Animator>())
       {
