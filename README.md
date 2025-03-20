@@ -107,7 +107,7 @@ For example, if you set your config like this :
 All of the primitives that have at least one of its parent  that contains "ExcludedPrimitives" or "Skins" will not be optimized.
 Example : <br>
 [![Example](https://github.com/MathMot/MEROptimizer/blob/dev/doc/optimizedExample.png?raw=true)]()
-
+*Note : If you put a schematic name in it, the plugin will exclude completly the schematic from the optimization process and none of its primitives will be optimized*
  # --------Schematic cluster splitting options--------
 
 ### <b><code style="color : greenyellow">clusterize_schematic</code></b>
