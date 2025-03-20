@@ -1,5 +1,8 @@
 # MEROptimizer
-[![GitHub release](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version)](#)[![GitHub release](https://img.shields.io/badge/Exiled_Version-9.5.1-blue)](https://github.com/ExMod-Team/EXILED/releases/tag/v9.5.1)[![GitHub release](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label="Total%20Downloads")]()
+[![GitHub release](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version)](#)[![GitHub release](https://img.shields.io/badge/Exiled_Version-9.5.1-blue)](https://github.com/ExMod-Team/EXILED/releases/tag/v9.5.1)[![GitHub release](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label="Total%20Downloads")]()<br>
+
+---
+
 [SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/MapEditorReborn) schematics using the [EXILED](https://github.com/ExMod-Team/EXILED) Framework.
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
 It also supports a feature to dynamicly spawn primitives around players.
