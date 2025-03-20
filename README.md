@@ -163,7 +163,7 @@ Informations :
 ---
 
 Known Issues : 
-
+--
 - Players with custom scale will have trouble loading schematics with the Cluster option enabled
 - In spectator mode, sometime some parts of the map is missing, you can prevents this by disabling the *should_spectator_be_affected_by_distance_spawning* option in the config.
 
