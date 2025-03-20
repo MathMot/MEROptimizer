@@ -5,7 +5,7 @@
 
 [SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/MapEditorReborn) schematics using the [EXILED](https://github.com/ExMod-Team/EXILED) Framework.
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
-It also supports a feature to dynamicly spawn primitives around players.
+It also supports a feature to dynamicly spawn primitives around players.<br>
 You can ask me questions on discord (matmoth)
 [![Plugin Preview](https://github.com/MathMot/MEROptimizer/blob/dev/doc/PDSDisplay.gif?raw=true)]()
 
@@ -106,7 +106,7 @@ For example, if you set your config like this :
   ```
 All of the primitives that have at least one of its parent  that contains "ExcludedPrimitives" or "Skins" will not be optimized.
 Example : <br>
-[![Example](https://github.com/MathMot/MEROptimizer/blob/dev/doc/optimizedExample.png?raw=true)]()
+[![Example](https://github.com/MathMot/MEROptimizer/blob/dev/doc/optimizedExample.png?raw=true)]()<br>
 *Note : If you put a schematic name in it, the plugin will exclude completly the schematic from the optimization process and none of its primitives will be optimized*
  # --------Schematic cluster splitting options--------
 
