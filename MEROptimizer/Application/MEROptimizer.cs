@@ -177,8 +177,12 @@ namespace MEROptimizer.MEROptimizer.Application
 
         if (child.TryGetComponent(out PrimitiveObject primitive))
         {
-          // Keep the quads/planes, colliders are buggy
+          if (excludedNames.Any(n => primitive.name.ToLower().Contains(n.ToLower())))
+          {
+            continue;
+          }
 
+          // Keep the quads/planes, colliders are buggy
           if ((primitive.Primitive.Type == PrimitiveType.Quad || primitive.Primitive.Type == PrimitiveType.Plane)
             && primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable))
           {
