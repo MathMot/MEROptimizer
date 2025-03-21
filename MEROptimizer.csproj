@@ -125,6 +125,7 @@
     <Compile Include="MEROptimizer\Application\Components\ClientSidePrimitive.cs" />
     <Compile Include="MEROptimizer\Application\Components\OptimizedSchematic.cs" />
     <Compile Include="MEROptimizer\Application\Components\PlayerDisplayHint.cs" />
+    <Compile Include="MEROptimizer\Application\Components\PlayerTrigger.cs" />
     <Compile Include="MEROptimizer\Application\Components\PrimitiveCluster.cs" />
     <Compile Include="MEROptimizer\Application\MEROptimizer.cs" />
     <Compile Include="MEROptimizer\Application\Patches\SchematicDestroyPatch.cs" />

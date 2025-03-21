@@ -45,11 +45,15 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private bool hideDistantPrimitives;
 
-    private bool shouldSpectatorsBeAffectedByPDS;
+    public static bool shouldSpectatorsBeAffectedByPDS;
+
+    public static bool ShouldTutorialsBeAffectedByDistanceSpawning;
 
     private float distanceRequiredForUnspawning;
 
-    private int maxDistanceForPrimitiveCluster;
+    private Dictionary<string, float> CustomSchematicSpawnDistance = new Dictionary<string, float>();
+
+    private float maxDistanceForPrimitiveCluster;
 
     private int maxPrimitivesPerCluster;
 
@@ -78,7 +82,8 @@ namespace MEROptimizer.MEROptimizer.Application
       shouldSpectatorsBeAffectedByPDS = config.ShouldSpectatorBeAffectedByDistanceSpawning;
       numberOfPrimitivePerSpawn = config.numberOfPrimitivePerSpawn;
       MinimumSizeBeforeBeingBigPrimitive = config.MinimumSizeBeforeBeingBigPrimitive;
-
+      ShouldTutorialsBeAffectedByDistanceSpawning = config.ShouldTutorialsBeAffectedByDistanceSpawning;
+      CustomSchematicSpawnDistance = config.CustomSchematicSpawnDistance;
       // Exiled Events
 
       Exiled.Events.Handlers.Player.Verified += OnVerified;
@@ -227,13 +232,16 @@ namespace MEROptimizer.MEROptimizer.Application
 
     private void AddPlayerTrigger(Player player)
     {
+      Log.Debug($"Adding PlayerTrigger to {player.DisplayNickname}({player.Id}) !");
       GameObject playerTrigger = new GameObject($"{player.Id}_MERO_TRIGGER");
-      playerTrigger.transform.parent = player.GameObject.transform;
-      playerTrigger.transform.localPosition = new Vector3(0, 2000, 0);
       playerTrigger.tag = "Player";
+
       Rigidbody rb = playerTrigger.AddComponent<Rigidbody>();
       rb.isKinematic = true;
-      playerTrigger.AddComponent<BoxCollider>();
+
+      playerTrigger.AddComponent<BoxCollider>().size = new Vector3(1, 2, 1); // epic representation of a player's collision
+
+      playerTrigger.AddComponent<PlayerTrigger>().player = player;
 
     }
     private void OnVerified(VerifiedEventArgs ev)
@@ -241,12 +249,14 @@ namespace MEROptimizer.MEROptimizer.Application
       if (ev.Player == null || !ev.Player.IsVerified) return;
 
       AddPlayerTrigger(ev.Player);
-      foreach (OptimizedSchematic schematic in optimizedSchematics)
+      foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
       {
+        Log.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he just connected !");
         schematic.SpawnClientPrimitives(ev.Player);
       }
     }
 
+    // one of the worst code i've ever written, i'm sorry about that
     private void OnSpawned(SpawnedEventArgs ev)
     {
       if (ev.Player == null) return;
@@ -277,32 +287,113 @@ namespace MEROptimizer.MEROptimizer.Application
       else
       {
 
-        if (!shouldSpectatorsBeAffectedByPDS)
+        // just spawned as a spectator, we spawn all clusters primitives for him
+        if ((ev.Player.Role.Type == RoleTypeId.Spectator || ev.Player.Role.Type == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
         {
-          // just spawned as a spectator, we spawn all clusters primitives for him
-          if (ev.Player.Role.Type == RoleTypeId.Spectator)
+          // Unspawning and then respawning primitives at the same frame causes the game to shit itself, so a delay is needed
+          Timing.CallDelayed(.5f, () =>
           {
-            foreach (OptimizedSchematic schematic in optimizedSchematics)
+            if (ev.Player != null && (ev.Player.Role.Type == RoleTypeId.Spectator || ev.Player.Role.Type == RoleTypeId.Overwatch))
             {
-              foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+              foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                cluster.SpawnFor(ev.Player);
+                Log.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+
+                foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+                {
+                  if (cluster.instantSpawn)
+                  {
+                    cluster.SpawnFor(ev.Player);
+                  }
+                  else
+                  {
+                    cluster.awaitingSpawn.Remove(ev.Player);
+                    cluster.awaitingSpawn.Add(ev.Player, cluster.primitives.ToList());
+                    cluster.spawning = true;
+                  }
+                }
               }
             }
-          } // the player just spawned and was a spectator
-          else if (ev.OldRole.Type == RoleTypeId.Spectator)
+          });
+
+        }
+        if (!ShouldTutorialsBeAffectedByDistanceSpawning && ev.Player.Role.Type == RoleTypeId.Tutorial)
+        {
+          Timing.CallDelayed(.5f, () =>
           {
-            foreach (OptimizedSchematic schematic in optimizedSchematics)
+
+            if (ev.Player != null && ev.Player.Role.Type == RoleTypeId.Tutorial)
             {
-              foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+              foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
+              {
+                Log.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+
+                foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+                {
+                  if (cluster.instantSpawn)
+                  {
+                    cluster.SpawnFor(ev.Player);
+                  }
+                  else
+                  {
+                    cluster.awaitingSpawn.Remove(ev.Player);
+                    cluster.awaitingSpawn.Add(ev.Player, cluster.primitives.ToList());
+                    cluster.spawning = true;
+                  }
+
+                }
+              }
+            }
+
+          });
+        }
+        else
+        {
+          foreach (OptimizedSchematic schematic in optimizedSchematics)
+          {
+            Log.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+            foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+            {
+              if (!cluster.insidePlayers.Contains(ev.Player))
               {
                 cluster.UnspawnFor(ev.Player);
               }
+
             }
+          }
+
+          if (ev.Player.Role.Type == RoleTypeId.Filmmaker || ev.Player.Role.Type == RoleTypeId.Scp079)
+          {
+            Timing.CallDelayed(.5f, () =>
+            {
+              if (ev.Player != null && ev.Player.Role.Type == RoleTypeId.Filmmaker)
+              {
+                foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
+                {
+                  Log.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+
+                  foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+                  {
+                    if (cluster.instantSpawn)
+                    {
+                      cluster.SpawnFor(ev.Player);
+                    }
+                    else
+                    {
+                      cluster.awaitingSpawn.Remove(ev.Player);
+                      cluster.awaitingSpawn.Add(ev.Player, cluster.primitives.ToList());
+                      cluster.spawning = true;
+                    }
+
+                  }
+                }
+              }
+            });
           }
         }
 
       }
+
     }
 
     private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
@@ -352,7 +443,7 @@ namespace MEROptimizer.MEROptimizer.Application
         return;
       }
 
-        List<Transform> parentsToExlude = new List<Transform>();
+      List<Transform> parentsToExlude = new List<Transform>();
 
       foreach (Animator anim in ev.Schematic.GetComponentsInChildren<Animator>())
       {
@@ -372,7 +463,6 @@ namespace MEROptimizer.MEROptimizer.Application
 
       foreach (PrimitiveObject primitive in primitivesToOptimize.Keys.ToList())
       {
-
         // Retrieve data
 
         Vector3 position = primitive.Position;
@@ -426,11 +516,20 @@ namespace MEROptimizer.MEROptimizer.Application
 
       // Store the client side primitive / server side colliders
 
+      float distanceForClusterSpawn = distanceRequiredForUnspawning;
+
+      if (CustomSchematicSpawnDistance.TryGetValue(ev.Schematic.Name, out float customDistance))
+      {
+        distanceForClusterSpawn = customDistance;
+      }
+
       OptimizedSchematic schematic = new OptimizedSchematic(ev.Schematic, serverSideColliders, clientSidePrimitive,
-        hideDistantPrimitives, distanceRequiredForUnspawning, excludedNamesForUnspawningDistantObjects,
+        hideDistantPrimitives, distanceForClusterSpawn, excludedNamesForUnspawningDistantObjects,
         maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster);
 
       optimizedSchematics.Add(schematic);
+
+
 
       if (ev.Schematic == null) return;
       Log.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
@@ -440,9 +539,9 @@ namespace MEROptimizer.MEROptimizer.Application
       {
         if (schematic == null || ev.Schematic == null) return;
         schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObject>().Count();
+
+
       });
-
-
 
     }
 

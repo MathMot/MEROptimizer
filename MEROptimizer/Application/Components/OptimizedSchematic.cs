@@ -1,6 +1,8 @@
 ﻿using Exiled.API.Features;
 using Exiled.API.Features.Toys;
 using MapEditorReborn.API.Features.Objects;
+using MEC;
+using PlayerRoles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,9 +42,10 @@ namespace MEROptimizer.MEROptimizer.Application.Components
     }
 
     public OptimizedSchematic(SchematicObject schematic, List<Collider> colliders, Dictionary<ClientSidePrimitive, bool> primitives,
-      bool doClusters = false, float distance = 50, List<string> excludedUnspawnObjects = null, int maxDistanceForPrimitiveCluster = 5,
-      int maxPrimitivesPerCluster = 200)
+      bool doClusters = false, float distance = 50, List<string> excludedUnspawnObjects = null, float maxDistanceForPrimitiveCluster = 2.5f,
+      int maxPrimitivesPerCluster = 100)
     {
+
 
       this.schematic = schematic;
       this.colliders = colliders;
@@ -58,7 +61,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
     }
 
     private void GenerateClustersAndSpawn(bool doClusters, Dictionary<ClientSidePrimitive, bool> primitives,
-      float distance, List<string> excludedUnspawnObjects, int maxDistanceForPrimitiveCluster, int maxPrimitivesPerCluster)
+      float distance, List<string> excludedUnspawnObjects, float maxDistanceForPrimitiveCluster, int maxPrimitivesPerCluster)
     {
       if (!doClusters)
       {
@@ -182,10 +185,63 @@ namespace MEROptimizer.MEROptimizer.Application.Components
         }
       }
 
+      // Spawn of primitives
+
       foreach (ClientSidePrimitive primitive in nonClusteredPrimitives)
       {
         primitive.SpawnForEveryone();
       }
+
+
+      // Spawn clusters for custom chiantos roles
+
+      Timing.CallDelayed(.5f, () =>
+      {
+
+        if (this == null) return;
+
+        foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
+        {
+          bool shouldSpawn = false;
+
+          // Tutorials if config is enabled
+          if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role.Type == RoleTypeId.Tutorial)
+          {
+            shouldSpawn = true;
+          }
+
+          // Spectators if config is enabled
+          if (!Application.MEROptimizer.shouldSpectatorsBeAffectedByPDS && (player.Role.Type == RoleTypeId.Spectator || player.Role.Type == RoleTypeId.Overwatch))
+          {
+            shouldSpawn = true;
+          }
+
+          // Theses role always see all of the maps
+          if (player.Role.Type == RoleTypeId.Filmmaker || player.Role.Type == RoleTypeId.Scp079)
+          {
+            shouldSpawn = true;
+          }
+
+
+          if (shouldSpawn)
+          {
+            foreach (PrimitiveCluster cluster in primitiveClusters)
+            {
+              if (cluster.instantSpawn)
+              {
+                cluster.SpawnFor(player);
+              }
+              else
+              {
+                cluster.awaitingSpawn.Remove(player);
+                cluster.awaitingSpawn.Add(player, cluster.primitives.ToList());
+                cluster.spawning = true;
+              }
+            }
+
+          }
+        }
+      });
     }
 
     public void RefreshFor(Player player)

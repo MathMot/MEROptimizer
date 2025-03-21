@@ -16,7 +16,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
 
     public string[] Aliases { get; } = new string[] { "mero.rtdp" };
 
-    public string Description { get; } = "Displays (or remove) the total count of primitives currently loaded to you every seconds";
+    public string Description { get; } = "Displays (or remove) the total count of primitives currently loaded to you every seconds, doesn't work for whitelisted roles";
 
     public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
     {

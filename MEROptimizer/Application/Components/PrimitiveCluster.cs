@@ -16,11 +16,11 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     public ClientSidePrimitive displayClusterPrimitive { get; set; }
 
-    private Dictionary<Player, List<ClientSidePrimitive>> awaitingSpawn = new Dictionary<Player, List<ClientSidePrimitive>>();
+    public Dictionary<Player, List<ClientSidePrimitive>> awaitingSpawn = new Dictionary<Player, List<ClientSidePrimitive>>();
 
     public List<Player> insidePlayers = new List<Player>();
 
-    private bool instantSpawn;
+    public bool instantSpawn;
 
     private float numberOfPrimitivePerSpawn;
 
@@ -28,7 +28,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     private bool multiFrameSpawn = false;
 
-    private bool spawning = false;
+    public bool spawning = false;
 
     public void Start()
     {
@@ -61,12 +61,20 @@ namespace MEROptimizer.MEROptimizer.Application.Components
     public void OnTriggerEnter(Collider collider)
     {
       // check player, collider.CompareTag("Player") blabla
-      if (collider == null || collider.transform.parent == null) return;
-      if (!collider.CompareTag("Player") || !Player.TryGet(collider.transform.parent.gameObject, out Player player)) return;
+      if (collider == null || collider.transform.parent != null) return;
+
+      if (!collider.CompareTag("Player") || !collider.gameObject.TryGetComponent(out PlayerTrigger playerTrigger)) return;
 
       // Prevents desync (using commands or mirrors skill issue), dosn't seems to happen without using dp commands
       // UnspawnFor(player);
 
+      Player player = playerTrigger.player;
+
+      if (player == null) return;
+
+      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role.Type == PlayerRoles.RoleTypeId.Tutorial) return;
+
+      if (player.Role.Type == PlayerRoles.RoleTypeId.Filmmaker) return;
 
       if (!player.IsNPC)
       {
@@ -96,8 +104,6 @@ namespace MEROptimizer.MEROptimizer.Application.Components
     {
       if (!spawning) return;
 
-      if (instantSpawn) return;
-
       if (multiFrameSpawn)
       {
         updatePassed++;
@@ -108,9 +114,7 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
       if (awaitingSpawn.Count == 0)
       {
-
         spawning = false;
-
       }
 
       foreach (Player player in awaitingSpawn.Keys.ToList())
@@ -139,15 +143,25 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           }
         }
 
-
-
       }
     }
     public void OnTriggerExit(Collider collider)
     {
-      // check player, collider.CompareTag("Player") blabla
-      if (collider == null || collider.transform.parent == null) return;
-      if (!collider.CompareTag("Player") || !Player.TryGet(collider.transform.parent.gameObject, out Player player)) return;
+      if (collider == null || collider.transform.parent != null) return;
+
+      if (!collider.CompareTag("Player") || !collider.gameObject.TryGetComponent(out PlayerTrigger playerTrigger)) return;
+
+      // Prevents desync (using commands or mirrors skill issue), dosn't seems to happen without using dp commands
+      // UnspawnFor(player);
+
+      Player player = playerTrigger.player;
+
+      if (player == null) return;
+
+      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role.Type == PlayerRoles.RoleTypeId.Tutorial) return;
+
+      if (player.Role.Type == PlayerRoles.RoleTypeId.Filmmaker) return;
+
 
       awaitingSpawn.Remove(player);
 
@@ -171,6 +185,8 @@ namespace MEROptimizer.MEROptimizer.Application.Components
     {
       if (player == null || !player.IsVerified) return;
 
+      awaitingSpawn.Remove(player);
+
       List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
       foreach (ClientSidePrimitive primitive in primitives)
       {
@@ -181,8 +197,6 @@ namespace MEROptimizer.MEROptimizer.Application.Components
           primitive.DestroyClientPrimitive(p);
         }
       }
-
-
     }
 
     public void DisplayRadius(Player player)
