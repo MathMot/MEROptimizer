@@ -72,20 +72,24 @@ mero:
   exclude_unspawning_distant_objects: []
   # In units, the distance required for a cluster to spawn/unspawn its primitives to the corresponding player
   spawn_distance: 50
+  # Adds a specific spawn distance for cluster of each entered schematics, bypassing the previously entered SpawnDistance
+  custom_schematic_spawn_distance: {}
   # Should spectating players be also affected by the cluster systemIf enabled, when a player spectates another, it will spawn all of the primitives that the spectated player currently sees, otherwise spectators will see all of the schematics at all time
   should_spectator_be_affected_by_distance_spawning: false
+  # Should tutorials be affected by the cluster system, if disabled, every tutorials will see all of the schematics at all time (useful for moderation stuff, etc)
+  should_tutorials_be_affected_by_distance_spawning: true
   # Minimum size of a primitive before being considered as a big one (size = (scale.x + y + z) )
   # Huge objects don't work with the cluster system and so they need to be excluded, prevents having to manually exclude each walls/floors of schematics
   # Set to zero (0) to disable it, not recommended
   minimum_size_before_being_big_primitive: 10
   # For each cluster, number of primitives that'll spawn per server frame (higher count means quicker spawn but potential freezes for clients)If set to zero (0), each cluster will spawn its primitives instantly, 0.5 means 1 primitive each 2 frames, etc
-  number_of_primitive_per_spawn: 1
+  number_of_primitive_per_spawn: 0.1
   # 
   # -----Clusters Options-----
   # In units, the maximum distance between a primitive and a specific cluster to be included in it, the more distance the less cluster will spawn
-  max_distance_for_primitive_cluster: 5
+  max_distance_for_primitive_cluster: 2.5
   # Maximum amount of primitive per cluster, if reached, a new cluster will spawn and be used. The less primitives per cluster the more clusters will spawn
-  max_primitives_per_cluster: 200
+  max_primitives_per_cluster: 100
 ```
 
   # -------------Global Options-------------
@@ -121,11 +125,26 @@ Usefull for large outside walls of buildings, huge text, logos, walls and floors
 ### <b><code style="color : greenyellow">spawn_distance</code></b>
 The distance between the cluster and the player needed for the primitives of the cluster to spawn/unspawn from the player, a larger distance means that more primitives will be spawned to players at the same time, you can match the distance with the natural fog in game if needed.
 
+### <b><code style="color : greenyellow">custom_schematic_spawn_distance</code></b>
+
+Overrides the default <code style="color : greenyellow">spawn_distance</code></b> value for specific schematic, if a schematic isn't listed in this property, the spawn distance will be the <code style="color : greenyellow">spawn_distance</code></b> value.
+
+For example, setting this : 
+```yml
+ # Adds a specific spawn distance for cluster of each entered schematics, bypassing the previously entered SpawnDistance
+  custom_schematic_spawn_distance:
+    Underground: 2
+```
+will change the spawn distance for the schematic name exactly "Underground" to 2.
 ### <b><code style="color : greenyellow">should_spectator_be_affected_by_distance_spawning</code></b>
 If enabled, spectators will load only what their spectated player sees, while it's being updated at the same time.
 If disabled, all spectators will have all of the schematics spawned everytime whoever they spectated.
 The only downside of enabling it is that when spectating new players, their corresponding primitives takes some times to spawn and as such it could be disturbing to watch.
 [![Plugin Preview](https://github.com/MathMot/MEROptimizer/blob/dev/doc/ssbabds.gif?raw=true)]()
+
+### <b><code style="color : greenyellow">should_tutorials_be_affected_by_distance_spawning</code></b>
+
+Same principle as the one above but for tutorials, mostly made for helping the moderation, taking screenshots from far away, etc...
 
 ### <b><code style="color : greenyellow">number_of_primitive_per_spawn</code></b>
 
@@ -159,13 +178,13 @@ Informations :
 - Quads and Planes <b>with collisions</b> will not be optimized by the plugin, the primitives will stay by default on the server side.
 - For this plugin to work without breaking any in game system, the real colliders detecting the players are spawned at 2000 units above the real clusters, each player also has a rigidbody+collider 2000 units above them for the colliders to detect them, so if you have any playable area at 2000 units above another one, colliding issues could appear.
 - If you're using AMERT or some sort of external plugin that interacts with in game primitives, be sure to use the exclusion feature to exclude every object that the plugin could use (for example with AMERT, every object with scripts, animations, etc.)<br>If this doesn't work, feel free to reach me via discord to find a solution.
+- SCP 079 can't use the clusterize option for now, if a player is SCP 079, he will load every maps at all times to prevent desync and stuff
 
 ---
 
 Known Issues : 
 --
-- Players with custom scale will have trouble loading schematics with the Cluster option enabled
-- In spectator mode, sometime some parts of the map is missing, you can prevents this by disabling the *should_spectator_be_affected_by_distance_spawning* option in the config.
+- None because i'm the best
 
 ---
 
@@ -173,5 +192,5 @@ Credits :
 -- 
 - Plugin made by [Math](https://github.com/MathMot) 
 - Original idea/sample code by a friend
-- Example map in theses examples also made by a friend
+- Example map in this readme is also made by a friend
 
