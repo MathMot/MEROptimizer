@@ -23,9 +23,9 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
     void Update()
     {
-      if (player == null)
+      if (player == null || player.ReferenceHub == null || player.ReferenceHub.transform == null)
       {
-        UnityEngine.GameObject.Destroy(this);
+        UnityEngine.GameObject.Destroy(this.gameObject);
         return;
       }
 
