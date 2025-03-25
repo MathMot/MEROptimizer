@@ -131,7 +131,9 @@ namespace MEROptimizer.MEROptimizer.Application.Components
 
         for (int i = 0; i < (multiFrameSpawn ? 1 : numberOfPrimitivePerSpawn); i++)
         {
-          ClientSidePrimitive prim = list.First();
+          ClientSidePrimitive prim = list.FirstOrDefault();
+
+          if (prim == null) break;
 
           list.Remove(prim);
 
