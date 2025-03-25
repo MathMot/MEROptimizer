@@ -22,7 +22,7 @@ namespace MEROptimizer.MEROptimizer.Application.Commands
     {
       MEROptimizer.isDynamiclyDisabled = !MEROptimizer.isDynamiclyDisabled;
 
-      response = $"New spawned schematics {(MEROptimizer.isDynamiclyDisabled ? "<color=green>will not" : "<color=red>will")}</color> be optimized !";
+      response = $"New spawned schematics {(MEROptimizer.isDynamiclyDisabled ? "<color=red>will not" : "<color=green>will")}</color> be optimized !";
 
       return true;
     }
