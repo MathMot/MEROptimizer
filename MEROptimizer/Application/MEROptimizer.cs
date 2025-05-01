@@ -366,7 +366,7 @@ namespace MEROptimizer.MEROptimizer.Application
           {
             Timing.CallDelayed(.5f, () =>
             {
-              if (ev.Player != null && ev.Player.Role.Type == RoleTypeId.Filmmaker)
+              if (ev.Player != null && (ev.Player.Role.Type == RoleTypeId.Filmmaker || ev.Player.Role.Type == RoleTypeId.Scp079))
               {
                 foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
                 {
