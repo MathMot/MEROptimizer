@@ -467,7 +467,8 @@ namespace MEROptimizer.MEROptimizer.Application
 
         Vector3 position = primitive.Position;
         Quaternion rotation = primitive.Rotation;
-        Vector3 scale = primitive.Scale;
+
+        Vector3 scale = primitive.transform.lossyScale;
 
         PrimitiveType primitiveType = primitive.Primitive.Type;
 
