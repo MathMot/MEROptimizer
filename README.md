@@ -1,5 +1,5 @@
 # MEROptimizer
-[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.0.2-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.0-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
+[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.0.0-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.0-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
 
 ---
 
