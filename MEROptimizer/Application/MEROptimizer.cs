@@ -6,7 +6,7 @@ using Exiled.Events.EventArgs.Player;
 using MapEditorReborn.API.Features.Objects;
 using MapEditorReborn.Events.EventArgs;
 using MEC;
-using MEROptimizer.MEROptimizer.Application.Components;
+using MEROptimizer.Application.Components;
 using Mirror;
 using PlayerRoles;
 using System;
@@ -18,7 +18,7 @@ using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 
-namespace MEROptimizer.MEROptimizer.Application
+namespace MEROptimizer.Application
 {
   public class MEROptimizer
   {

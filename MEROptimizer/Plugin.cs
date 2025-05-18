@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MEROptimizer.MEROptimizer.Application;
+using MEROptimizer.Application;
 using HarmonyLib;
 using Exiled.API.Enums;
 
-namespace MEROptimizer.MEROptimizer
+namespace MEROptimizer
 {
   public class Plugin : Plugin<Config>
   {

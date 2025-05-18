@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MEROptimizer.MEROptimizer.Application.Patches
+namespace MEROptimizer.Application.Patches
 {
   [HarmonyPatch(typeof(SchematicObject), nameof(SchematicObject.OnDestroy))]
   public static class SchematicDestroyPatch

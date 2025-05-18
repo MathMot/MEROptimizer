@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MEROptimizer.MEROptimizer.Application.Components
+namespace MEROptimizer.Application.Components
 {
   public class PrimitiveCluster : MonoBehaviour
   {

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using static PlayerList;
 
-namespace MEROptimizer.MEROptimizer.Application.Components
+namespace MEROptimizer.Application.Components
 {
   public class OptimizedSchematic
   {

@@ -1,13 +1,13 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
 using Exiled.API.Features.Pickups;
-using MEROptimizer.MEROptimizer.Application.Components;
+using MEROptimizer.Application.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MEROptimizer.MEROptimizer.Application.Commands
+namespace MEROptimizer.Application.Commands
 {
   [CommandHandler(typeof(RemoteAdminCommandHandler))]
   public class DisablePluginCmd : ICommand
