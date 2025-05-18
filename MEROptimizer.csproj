@@ -45,7 +45,6 @@
     <Compile Include="MEROptimizer\Application\Components\PlayerTrigger.cs" />
     <Compile Include="MEROptimizer\Application\Components\PrimitiveCluster.cs" />
     <Compile Include="MEROptimizer\Application\MEROptimizer.cs" />
-    <Compile Include="MEROptimizer\Application\Patches\SchematicDestroyPatch.cs" />
     <Compile Include="MEROptimizer\Config.cs" />
     <Compile Include="MEROptimizer\Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,11 +58,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>deps\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
+    <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>deps\CommandSystem.Core.dll</HintPath>
+    </Reference>
     <Reference Include="LabApi">
       <HintPath>deps\LabApi.dll</HintPath>
-    </Reference>
-    <Reference Include="Mirror">
-      <HintPath>deps\Mirror.dll</HintPath>
     </Reference>
     <Reference Include="Mirror_publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -71,9 +71,6 @@
     </Reference>
     <Reference Include="ProjectMER">
       <HintPath>deps\ProjectMER.dll</HintPath>
-    </Reference>
-    <Reference Include="ProjectMER_publicized">
-      <HintPath>deps\ProjectMER_publicized.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">

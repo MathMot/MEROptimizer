@@ -19,18 +19,11 @@ namespace MEROptimizer
 
     public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 
-    //private static int patchCount = 1;
-
     public static Application.MEROptimizer merOptimizer;
-    //private Harmony harmony;
     public override void Enable()
     {
       merOptimizer = new Application.MEROptimizer();
       merOptimizer.Load(Config);
-
-      // Harmony
-      //harmony = new Harmony($"{Author.ToLower()}.{Name.ToLower()}.{patchCount++}");
-      //harmony.PatchAll();
 
     }
 
@@ -38,8 +31,6 @@ namespace MEROptimizer
     {
       merOptimizer?.Unload();
       merOptimizer = null;
-      //harmony?.UnpatchAll();
-      //harmony = null;
     }
   }
 }

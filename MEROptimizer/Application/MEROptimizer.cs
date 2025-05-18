@@ -34,6 +34,8 @@ namespace MEROptimizer.Application
 
     private Mesh cylinderMesh;
 
+    public static uint PrimitiveAssetId;
+
     /*
     private Mesh quadMesh;
    
@@ -94,7 +96,6 @@ namespace MEROptimizer.Application
 
 
       // MER Events
-      
       ProjectMER.Events.Handlers.Schematic.SchematicSpawned += OnSchematicSpawned;
       ProjectMER.Events.Handlers.Schematic.SchematicDestroyed += OnSchematicDestroyed;
 
@@ -102,8 +103,7 @@ namespace MEROptimizer.Application
 
     public void Unload()
     {
-      // Exiled Events
-
+      // LabAPI Events
       LabApi.Events.Handlers.PlayerEvents.Joined -= OnJoined;
       LabApi.Events.Handlers.PlayerEvents.Spawned -= OnSpawned;
       LabApi.Events.Handlers.PlayerEvents.ChangedSpectator -= OnChangedSpectator;
@@ -125,9 +125,22 @@ namespace MEROptimizer.Application
       optimizedSchematics.Clear();
     }
 
+    private GameObject tempPrimitivePrefab;
     private void GenerateMeshFilters()
     {
-      GameObject toy = UnityEngine.GameObject.Instantiate(Primitive.Prefab.gameObject);
+      if (tempPrimitivePrefab == null)
+      {
+        if (!NetworkClient.prefabs.ContainsKey(1321952889u))
+        {
+          Logger.Error("Can't generate proper colliders for primitives, primitive gameobject is not found.");
+          return;
+        }
+
+        tempPrimitivePrefab = NetworkClient.prefabs.Where(k => k.Key == 1321952889u).FirstOrDefault().Value;
+        PrimitiveAssetId = tempPrimitivePrefab.GetComponent<NetworkIdentity>().assetId;
+      }
+
+      GameObject toy = UnityEngine.GameObject.Instantiate(tempPrimitivePrefab);
       PrimitiveObjectToy primitive = toy.GetComponent<PrimitiveObjectToy>();
 
       primitive.NetworkPosition = new Vector3(0f, 0f, 0f);
@@ -183,28 +196,33 @@ namespace MEROptimizer.Application
 
         if (child.TryGetComponent(out PrimitiveObjectToy primitive))
         {
+
           if (excludedNames.Any(n => primitive.name.ToLower().Contains(n.ToLower())))
           {
             continue;
           }
 
-          // Keep the quads/planes, colliders are buggy
-          if ((primitive.Primitive.Type == PrimitiveType.Quad || primitive.Primitive.Type == PrimitiveType.Plane)
-            && primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable))
+          // Keep the quads/planes, colliders are buggy, + removing primitives working as empty for MER
+          if ((primitive.PrimitiveType == PrimitiveType.Quad || primitive.PrimitiveType == PrimitiveType.Plane)
+            && primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
           {
             continue;
           }
 
           if (this.excludeCollidables)
           {
-            if (primitive.Primitive.Flags.HasFlag(PrimitiveFlags.Collidable)) continue;
+            if (primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable)) continue;
           }
 
-          primitives.Add(primitive, clusterChilds);
-          continue;
+          if (primitive.PrimitiveFlags != PrimitiveFlags.None)
+          {
+            primitives.Add(primitive, clusterChilds);
+          }
+
+          //continue;
         }
 
-        if (!child.TryGetComponent(out MapEditorObject _) && !parentToExclude.Contains(child))
+        if (!parentToExclude.Contains(child))
         {
           if (!excludedNames.Any(n => child.name.ToLower().Contains(n.ToLower())))
           {
@@ -262,27 +280,25 @@ namespace MEROptimizer.Application
     {
       if (ev.Player == null) return;
 
-        if (ev.Player.IsNpc)
+      if (ev.Player.IsNpc)
+      {
+        bool hasFound = false;
+
+        for (int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
         {
-          bool hasFound = false;
-
-          for (int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
+          Transform child = ev.Player.GameObject.transform.GetChild(i);
+          if (child != null && child.name == $"{ev.Player.PlayerId}_MERO_TRIGGER")
           {
-            Transform child = ev.Player.GameObject.transform.GetChild(i);
-            if (child != null && child.name == $"{ev.Player.PlayerId}_MERO_TRIGGER")
-            {
-              hasFound = true;
-              break;
-            }
-          }
-
-          if (!hasFound)
-          {
-            AddPlayerTrigger(ev.Player);
+            hasFound = true;
+            break;
           }
         }
 
-
+        if (!hasFound)
+        {
+          AddPlayerTrigger(ev.Player);
+        }
+      }
       else
       {
 
@@ -424,6 +440,7 @@ namespace MEROptimizer.Application
 
     private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
     {
+
       if (isDynamiclyDisabled)
       {
         Logger.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
@@ -450,6 +467,8 @@ namespace MEROptimizer.Application
         parentsToExlude.Add(anim.transform);
       }
 
+
+
       Dictionary<PrimitiveObjectToy, bool> primitivesToOptimize = GetPrimitivesToOptimize(ev.Schematic.transform, parentsToExlude);
 
       if (primitivesToOptimize == null || primitivesToOptimize.IsEmpty()) return;
@@ -463,20 +482,15 @@ namespace MEROptimizer.Application
       foreach (PrimitiveObjectToy primitive in primitivesToOptimize.Keys.ToList())
       {
         // Retrieve data
-
-        Vector3 position = primitive.Position;
-        Quaternion rotation = primitive.Rotation;
-
+        Vector3 position = primitive.transform.position;
+        Quaternion rotation = primitive.transform.rotation;
         Vector3 scale = primitive.transform.lossyScale;
+        PrimitiveType primitiveType = primitive.PrimitiveType;
+        Color color = primitive.NetworkMaterialColor;
+        PrimitiveFlags primitiveFlags = primitive.PrimitiveFlags;
 
-        PrimitiveType primitiveType = primitive.Primitive.Type;
-
-        Color color = primitive.Primitive.Base.NetworkMaterialColor;
-
-        PrimitiveFlags primitiveFlags = primitive.Primitive.Flags;
 
         // store the data about the primitive
-
         clientSidePrimitive.Add(new ClientSidePrimitive(position, rotation, scale, primitiveType, color, primitiveFlags), primitivesToOptimize[primitive]);
 
         // Add collider for the server if the primitive is collidable
@@ -532,25 +546,25 @@ namespace MEROptimizer.Application
 
 
       if (ev.Schematic == null) return;
-      Logger.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
-      DestroyPrimitives(ev.Schematic, primitivesToDestroy);
 
+      foreach (PrimitiveObjectToy primitive in primitivesToDestroy)
+      {
+        if (primitive == null) continue;
+        GameObject.Destroy(primitive.gameObject);
+      }
       Timing.CallDelayed(1f, () =>
       {
-        if (schematic == null || ev.Schematic == null) return;
-        schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObject>().Count();
+
+        if (ev.Schematic == null || schematic == null) return;
+        schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null).Count();
+        schematic.schematicServerSidePrimitiveEmptiesCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null && p.PrimitiveFlags == PrimitiveFlags.None).Count();
+
       });
 
+      //DestroyPrimitives(ev.Schematic, primitivesToDestroy);
+
     }
-    private void DestroyPrimitives(SchematicObject schematic, List<PrimitiveObjectToy> primitives)
-    {
-      foreach (PrimitiveObjectToy primitive in primitives.Where(p => p != null && p.gameObject != null))
-      {
-        
-        schematic?._attachedBlocks.Remove(primitive.gameObject); //schematic?.AttachedBlocks.Remove(primitive.gameObject);, wait for Michal fix
-        primitive.Destroy();
-      }
-    }
+
 
     private void OnSchematicDestroyed(SchematicDestroyedEventArgs ev)
     {

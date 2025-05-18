@@ -1,4 +1,4 @@
-﻿using Exiled.API.Features;
+﻿using LabApi.Features.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace MEROptimizer.Application.Components
     }
 
 
-    void Update()
+    public void Update()
     {
       if (player == null || player.ReferenceHub == null || player.ReferenceHub.transform == null)
       {

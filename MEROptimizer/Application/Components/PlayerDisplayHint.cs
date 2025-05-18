@@ -1,4 +1,4 @@
-﻿using Exiled.API.Features;
+﻿using LabApi.Features.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace MEROptimizer.Application.Components
     public void Update()
     {
       timePassed += Time.deltaTime; // mrc serious
-      if (timePassed > 1)
+      if (timePassed > .3f)
       {
         timePassed = 0;
 
@@ -51,23 +51,7 @@ namespace MEROptimizer.Application.Components
           return;
         }
 
-        string oldText = "";
-        if (player.HasHint)
-        {
-          oldText = player.CurrentHint.Content;
-
-          if (oldText.Contains("Loaded <color=green>") && oldText.Contains("</color> primitives"))
-          {
-            int start = oldText.LastIndexOf("\nLoaded <color=green>");
-            int end = oldText.IndexOf("</color> primitives", start) + "</color> primitives".Length;
-            oldText = oldText.Remove(start, end - start);
-          }
-        }
-
-        if (oldText != "") oldText += "\n";
-
-        player.ShowHint($"{oldText}Loaded <color=green>{count}</color> out of a total of <color=red>{totalPrimitiveCount}</color> primitives", 2);
-
+        player.SendHint($"Loaded <color=green>{count}</color> out of a total of <color=red>{totalPrimitiveCount}</color> primitives", .5f);
 
       }
     }

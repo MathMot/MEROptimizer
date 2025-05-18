@@ -1,6 +1,5 @@
 ﻿using CommandSystem;
-using Exiled.API.Features;
-using Exiled.API.Features.Pickups;
+using LabApi.Features.Wrappers;
 using MEC;
 using MEROptimizer.Application.Components;
 using System;

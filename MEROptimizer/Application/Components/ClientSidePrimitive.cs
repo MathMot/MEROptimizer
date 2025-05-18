@@ -1,6 +1,6 @@
 ﻿using AdminToys;
-using Exiled.API.Features;
-using Exiled.API.Features.Toys;
+using Logger = LabApi.Features.Console.Logger;
+using LabApi.Features.Wrappers;
 using Mirror;
 using System;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace MEROptimizer.Application.Components
     {
       NetworkWriterPooled writer = NetworkWriterPool.Get();
       writer.Write<byte>(1);
-      writer.Write<byte>(63);
+      writer.Write<byte>(67);
       writer.Write<Vector3>(position);
       writer.Write<Quaternion>(rotation);
       writer.Write<Vector3>(scale);
@@ -52,6 +52,7 @@ namespace MEROptimizer.Application.Components
       writer.Write<int>((int)primitiveType);
       writer.Write<Color>(color);
       writer.Write<byte>((byte)(primitiveFlags));
+      writer.Write<uint>(0);
 
       spawnMessage = new SpawnMessage()
       {
@@ -59,7 +60,7 @@ namespace MEROptimizer.Application.Components
         isLocalPlayer = false,
         isOwner = false,
         sceneId = 0,
-        assetId = Primitive.Prefab.netIdentity.assetId,
+        assetId = MEROptimizer.PrimitiveAssetId,
         position = position,
         rotation = rotation,
         scale = scale,
@@ -75,7 +76,7 @@ namespace MEROptimizer.Application.Components
 
     public void DestroyForEveryone()
     {
-      foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
+      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
       {
         DestroyClientPrimitive(player);
       }
@@ -88,7 +89,7 @@ namespace MEROptimizer.Application.Components
 
     public void SpawnForEveryone()
     {
-      foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
+      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
       {
         SpawnClientPrimitive(player);
       }
@@ -97,6 +98,7 @@ namespace MEROptimizer.Application.Components
     public void SpawnClientPrimitive(Player target)
     {
       //DestroyClientPrimitive(target);
+
       target?.Connection?.Send(spawnMessage);
     }
   }
