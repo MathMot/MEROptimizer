@@ -1,5 +1,6 @@
 ﻿using AdminToys;
 using Exiled.API.Features;
+using LabApi.Features.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -173,12 +174,14 @@ namespace MEROptimizer.Application.Components
 
     }
 
+    
 
     public void SpawnFor(Player player)
     {
       if (player == null || !player.IsVerified) return;
       foreach (ClientSidePrimitive primitive in primitives)
       {
+
         primitive.SpawnClientPrimitive(player);
       }
     }

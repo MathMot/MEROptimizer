@@ -1,10 +1,4 @@
-﻿using Exiled.API.Features;
-using HarmonyLib;
-using MapEditorReborn.API.Features;
-using MapEditorReborn.API.Features.Objects;
-using MapEditorReborn.Events.EventArgs;
-using MapEditorReborn.Events.Handlers;
-using Mirror;
+﻿using Mirror;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MEROptimizer.Application.Patches
-{
+{/*
   [HarmonyPatch(typeof(SchematicObject), nameof(SchematicObject.OnDestroy))]
   public static class SchematicDestroyPatch
   {
@@ -36,5 +30,5 @@ namespace MEROptimizer.Application.Patches
       return false;
     }
 
-  }
+  }  */
 }
