@@ -550,6 +550,7 @@ namespace MEROptimizer.Application
       foreach (PrimitiveObjectToy primitive in primitivesToDestroy)
       {
         if (primitive == null) continue;
+        ev.Schematic._attachedBlocks.Remove(primitive.gameObject);
         GameObject.Destroy(primitive.gameObject);
       }
       Timing.CallDelayed(1f, () =>
