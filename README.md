@@ -1,11 +1,12 @@
 # MEROptimizer
-[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![EXILED Version](https://img.shields.io/badge/Exiled_Version-9.5.1-blue?&color=00e3ff )](https://github.com/ExMod-Team/EXILED/releases/tag/v9.5.1) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.0.2-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
+[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.0.2-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.0-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
 
 ---
 
-[SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/MapEditorReborn) schematics using the [EXILED](https://github.com/ExMod-Team/EXILED) Framework.
+[SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/ProjectMER)(ProjectMER for now) schematics using the [LabAPI](https://github.com/northwood-studios/LabAPI) Framework.
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
-It also supports a feature to dynamicly spawn primitives around players.<br>
+It also supports a feature to dynamicly spawn primitives around players.
+It got also an API to create and handle client sided primitives (ClientSidePrimitive class).<br>
 You can ask me questions on discord (matmoth)
 [![Plugin Preview](https://github.com/MathMot/MEROptimizer/blob/dev/doc/PDSDisplay.gif?raw=true)]()
 
@@ -42,8 +43,8 @@ You can ask me questions on discord (matmoth)
 
 Setup : 
 -- 
-- Make sure that your SCP:SL server version(14.0.2) and EXILED version (9.5.1) are corresponding. <br>
-- [Download](https://github.com/MathMot/MEROptimizer/releases/latest) the latest version of the plugin and place the .dll in  the EXILED/Plugins folder.
+- Make sure that your SCP:SL server version(14.1.0) corresponds <br>
+- [Download](https://github.com/MathMot/MEROptimizer/releases/latest) the latest version of the plugin and place your .dll in  the *LabAPI\plugins\<global/port>* folder.
 
 ---
 
@@ -51,45 +52,45 @@ Configuration :
 -- 
 Default configuration : 
 ```yaml
-mero:
 # If the plugin is enabled or not.
-  is_enabled: true
-  # Displays plugin debug logs.
-  debug: false
-  # 
-  # -------------Global Options-------------
-  # If the primitives that will be optimized are only non collidable
-  optimize_only_non_collidable: false
-  # Prvents group of primitives to be optimized (aka keeped server sided)
-  # Simply name one of its empty parents with one of the entered name here and it will be excluded.
-  exclude_objects: []
-  # 
-  # -------------Schematic cluster splitting options-------------
-  # Could be quite hard to understand, more info in the plugin readme
-  # If enabled, splits schematics into clusters of primitives to then spawn them independently per players based on their distance to the cluster
-  clusterize_schematic: true
-  # Prevents group of primitives to be used by the clusters. Useful for skyboxs, outer walls of buildings and giant primitives that requires to be seen from far awaySimply name one of its empty parents with one of the entered names here and it will be excluded.
-  exclude_unspawning_distant_objects: []
-  # In units, the distance required for a cluster to spawn/unspawn its primitives to the corresponding player
-  spawn_distance: 50
-  # Adds a specific spawn distance for cluster of each entered schematics, bypassing the previously entered SpawnDistance
-  custom_schematic_spawn_distance: {}
-  # Should spectating players be also affected by the cluster systemIf enabled, when a player spectates another, it will spawn all of the primitives that the spectated player currently sees, otherwise spectators will see all of the schematics at all time
-  should_spectator_be_affected_by_distance_spawning: false
-  # Should tutorials be affected by the cluster system, if disabled, every tutorials will see all of the schematics at all time (useful for moderation stuff, etc)
-  should_tutorials_be_affected_by_distance_spawning: true
-  # Minimum size of a primitive before being considered as a big one (size = (scale.x + y + z) )
-  # Huge objects don't work with the cluster system and so they need to be excluded, prevents having to manually exclude each walls/floors of schematics
-  # Set to zero (0) to disable it, not recommended
-  minimum_size_before_being_big_primitive: 10
-  # For each cluster, number of primitives that'll spawn per server frame (higher count means quicker spawn but potential freezes for clients)If set to zero (0), each cluster will spawn its primitives instantly, 0.5 means 1 primitive each 2 frames, etc
-  number_of_primitive_per_spawn: 0.1
-  # 
-  # -----Clusters Options-----
-  # In units, the maximum distance between a primitive and a specific cluster to be included in it, the more distance the less cluster will spawn
-  max_distance_for_primitive_cluster: 2.5
-  # Maximum amount of primitive per cluster, if reached, a new cluster will spawn and be used. The less primitives per cluster the more clusters will spawn
-  max_primitives_per_cluster: 100
+is_enabled: true
+# Displays plugin debug logs.
+debug: false
+# 
+#-------------Global Options-------------
+# If the primitives that will be optimized are only non collidable
+optimize_only_non_collidable: false
+# Prevents group of primitives to be optimized (aka keeped server sided)
+# Simply name one of its empty parents with one of the entered name here and it will be excluded.
+exclude_objects: []
+# 
+#-------------Schematic cluster splitting options-------------
+# Could be quite hard to understand, more info in the plugin readme
+# If enabled, splits schematics into clusters of primitives to then spawn them independently per players based on their distance to the cluster
+clusterize_schematic: true
+# Prevents group of primitives to be used by the clusters. Useful for skyboxs, outer walls of buildings and giant primitives that requires to be seen from far away# Simply name one of its empty parents with one of the entered names here and it will be excluded.
+exclude_unspawning_distant_objects: []
+# In units, the distance required for a cluster to spawn/unspawn its primitives to the corresponding player
+spawn_distance: 50
+# Adds a specific spawn distance for cluster of each entered schematics, bypassing the previously entered SpawnDistance
+custom_schematic_spawn_distance: {}
+# Should spectating players be also affected by the cluster systemIf enabled, when a player spectates another, it will spawn all of the primitives that the spectated player currently sees, otherwise spectators will see all of the schematics at all time
+should_spectator_be_affected_by_distance_spawning: false
+# Should tutorials be affected by the cluster system, if disabled, every tutorials will see all of the schematics at all time (useful for moderation stuff, etc)
+should_tutorials_be_affected_by_distance_spawning: true
+# Minimum size of a primitive before being considered as a big one (size = (scale.x + y + z) )
+# Huge objects don't work with the cluster system and so they need to be excluded, prevents having to manually exclude each walls/floors of schematics
+# Set to zero (0) to disable it, not recommended
+minimum_size_before_being_big_primitive: 10
+# For each cluster, number of primitives that'll spawn per server frame (higher count means quicker spawn but potential freezes for clients)If set to zero (0), each cluster will spawn its primitives instantly, 0.5 means 1 primitive each 2 frames, etc
+number_of_primitive_per_spawn: 0.100000001
+# 
+#-----Clusters Options-----
+#In units, the maximum distance between a primitive and a specific cluster to be included in it, the more distance the less cluster will spawn
+max_distance_for_primitive_cluster: 2.5
+# Maximum amount of primitive per cluster, if reached, a new cluster will spawn and be used. The less primitives per cluster the more clusters will spawn
+max_primitives_per_cluster: 100
+
 ```
 
   # -------------Global Options-------------
