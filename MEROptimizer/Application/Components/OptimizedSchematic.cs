@@ -254,7 +254,7 @@ namespace MEROptimizer.Application.Components
       {
         primitive.SpawnClientPrimitive(player);
       }
-      Logger.Debug($"Refresh the schematic {this.schematicName} for {player.DisplayName} !");
+      MEROptimizer.Debug($"Refresh the schematic {this.schematicName} for {player.DisplayName} !");
     }
 
     public void HideFor(Player player, bool showDebug = true)
@@ -262,7 +262,7 @@ namespace MEROptimizer.Application.Components
       if (player == null) return;
       if (showDebug)
       {
-        Logger.Debug($"Hiding client side primitives of {this.schematicName} to {player.DisplayName}");
+        MEROptimizer.Debug($"Hiding client side primitives of {this.schematicName} to {player.DisplayName}");
       }
 
       foreach (ClientSidePrimitive primitive in nonClusteredPrimitives)
@@ -275,7 +275,7 @@ namespace MEROptimizer.Application.Components
 
     public void SpawnClientPrimitivesToAll()
     {
-      Logger.Debug($"Displaying {schematicName}'s client side primitives !");
+      MEROptimizer.Debug($"Displaying {schematicName}'s client side primitives !");
       foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
       {
         SpawnClientPrimitives(player);
@@ -286,7 +286,7 @@ namespace MEROptimizer.Application.Components
     {
       if (player == null) return;
 
-      Logger.Debug($"Displaying client side primitives of {this.schematicName} to {player.DisplayName}");
+      MEROptimizer.Debug($"Displaying client side primitives of {this.schematicName} to {player.DisplayName}");
       foreach (ClientSidePrimitive primitive in nonClusteredPrimitives)
       {
         primitive.SpawnClientPrimitive(player);
@@ -310,7 +310,7 @@ namespace MEROptimizer.Application.Components
         UnityEngine.Object.Destroy(cluster);
       }
 
-      Logger.Debug($"Destroyed client side schematic of {schematicName} !");
+      MEROptimizer.Debug($"Destroyed client side schematic of {schematicName} !");
     }
   }
 }

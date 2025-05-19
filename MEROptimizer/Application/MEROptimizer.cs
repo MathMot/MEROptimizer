@@ -66,14 +66,15 @@ namespace MEROptimizer.Application
 
     public static float MinimumSizeBeforeBeingBigPrimitive;
 
-
     public static bool isDynamiclyDisabled = false;
 
+    public static bool IsDebug = false;
 
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
       //Config
+      MEROptimizer.IsDebug = config.Debug;
       excludeCollidables = config.OptimizeOnlyNonCollidable;
       excludedNames = config.excludeObjects;
 
@@ -119,6 +120,12 @@ namespace MEROptimizer.Application
 
 
     // ---------------------- Private methods
+
+    public static void Debug(string message)
+    {
+      if (!MEROptimizer.IsDebug) return;
+      Logger.Debug(message);
+    }
 
     private void Clear()
     {
@@ -251,7 +258,7 @@ namespace MEROptimizer.Application
 
     private void AddPlayerTrigger(Player player)
     {
-      Logger.Debug($"Adding PlayerTrigger to {player.DisplayName}({player.PlayerId}) !");
+      MEROptimizer.Debug($"Adding PlayerTrigger to {player.DisplayName}({player.PlayerId}) !");
       GameObject playerTrigger = new GameObject($"{player.PlayerId}_MERO_TRIGGER");
       playerTrigger.tag = "Player";
 
@@ -270,7 +277,7 @@ namespace MEROptimizer.Application
       AddPlayerTrigger(ev.Player);
       foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
       {
-        Logger.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just connected !");
+        MEROptimizer.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just connected !");
         schematic.SpawnClientPrimitives(ev.Player);
       }
     }
@@ -312,7 +319,7 @@ namespace MEROptimizer.Application
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                Logger.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -341,7 +348,7 @@ namespace MEROptimizer.Application
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                Logger.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -366,7 +373,7 @@ namespace MEROptimizer.Application
         {
           foreach (OptimizedSchematic schematic in optimizedSchematics)
           {
-            Logger.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+            MEROptimizer.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
             foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
             {
               if (!cluster.insidePlayers.Contains(ev.Player))
@@ -385,7 +392,7 @@ namespace MEROptimizer.Application
               {
                 foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
                 {
-                  Logger.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                  MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                   foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                   {
