@@ -71,6 +71,7 @@ namespace MEROptimizer.Application
     public static bool IsDebug = false;
 
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
+    private List<SchematicObject> awaitingSchematics = new List<SchematicObject>();
     public void Load(Config config)
     {
       //Config
@@ -94,6 +95,7 @@ namespace MEROptimizer.Application
       LabApi.Events.Handlers.PlayerEvents.Spawned += OnSpawned;
       LabApi.Events.Handlers.PlayerEvents.ChangedSpectator += OnChangedSpectator;
       LabApi.Events.Handlers.ServerEvents.WaitingForPlayers += OnWaitingForPlayers;
+      LabApi.Events.Handlers.ServerEvents.RoundStarted += OnRoundStarted;
 
 
       // MER Events
@@ -109,6 +111,7 @@ namespace MEROptimizer.Application
       LabApi.Events.Handlers.PlayerEvents.Spawned -= OnSpawned;
       LabApi.Events.Handlers.PlayerEvents.ChangedSpectator -= OnChangedSpectator;
       LabApi.Events.Handlers.ServerEvents.WaitingForPlayers -= OnWaitingForPlayers;
+      LabApi.Events.Handlers.ServerEvents.RoundStarted -= OnRoundStarted;
 
       // MER Events
 
@@ -118,7 +121,17 @@ namespace MEROptimizer.Application
       Clear();
     }
 
-
+    private void OnRoundStarted()
+    {
+      Timing.CallDelayed(1f, () => { 
+      
+      foreach(SchematicObject schematic in awaitingSchematics)
+        {
+          if (schematic == null) continue;
+          HandleSchematic(schematic);
+        }
+      });
+    }
     // ---------------------- Private methods
 
     public static void Debug(string message)
@@ -272,7 +285,8 @@ namespace MEROptimizer.Application
     }
     private void OnJoined(PlayerJoinedEventArgs ev)
     {
-      if (ev.Player == null || ev.Player.IsNpc) return;
+      Timing.CallDelayed(2f, () => {
+        if (ev.Player == null || ev.Player.IsNpc) return;
 
       AddPlayerTrigger(ev.Player);
       foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
@@ -280,11 +294,13 @@ namespace MEROptimizer.Application
         MEROptimizer.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just connected !");
         schematic.SpawnClientPrimitives(ev.Player);
       }
+      });
     }
 
     // one of the worst code i've ever written, i'm sorry about that
     private void OnSpawned(PlayerSpawnedEventArgs ev)
     {
+      Timing.CallDelayed(1f, () => { 
       if (ev.Player == null) return;
 
       if (ev.Player.IsNpc)
@@ -415,7 +431,7 @@ namespace MEROptimizer.Application
         }
 
       }
-
+      });
     }
 
     private void OnChangedSpectator(PlayerChangedSpectatorEventArgs ev)
@@ -461,14 +477,27 @@ namespace MEROptimizer.Application
 
       if (ev.Schematic == null) return;
 
-      if (excludedNames.Any(n => ev.Schematic.Name.Contains(n)))
+      if (!Round.IsRoundStarted)
+      {
+        awaitingSchematics.Add(ev.Schematic);
+      }
+
+      HandleSchematic(ev.Schematic);
+
+
+    }
+
+    private void HandleSchematic(SchematicObject Schematic)
+    {
+
+      if (excludedNames.Any(n => Schematic.Name.Contains(n)))
       {
         return;
       }
 
       List<Transform> parentsToExlude = new List<Transform>();
 
-      foreach (Animator anim in ev.Schematic.GetComponentsInChildren<Animator>())
+      foreach (Animator anim in Schematic.GetComponentsInChildren<Animator>())
       {
         if (anim == null) continue;
         parentsToExlude.Add(anim.transform);
@@ -476,7 +505,7 @@ namespace MEROptimizer.Application
 
 
 
-      Dictionary<PrimitiveObjectToy, bool> primitivesToOptimize = GetPrimitivesToOptimize(ev.Schematic.transform, parentsToExlude);
+      Dictionary<PrimitiveObjectToy, bool> primitivesToOptimize = GetPrimitivesToOptimize(Schematic.transform, parentsToExlude);
 
       if (primitivesToOptimize == null || primitivesToOptimize.IsEmpty()) return;
 
@@ -539,12 +568,12 @@ namespace MEROptimizer.Application
 
       float distanceForClusterSpawn = distanceRequiredForUnspawning;
 
-      if (CustomSchematicSpawnDistance.TryGetValue(ev.Schematic.Name, out float customDistance))
+      if (CustomSchematicSpawnDistance.TryGetValue(Schematic.Name, out float customDistance))
       {
         distanceForClusterSpawn = customDistance;
       }
 
-      OptimizedSchematic schematic = new OptimizedSchematic(ev.Schematic, serverSideColliders, clientSidePrimitive,
+      OptimizedSchematic schematic = new OptimizedSchematic(Schematic, serverSideColliders, clientSidePrimitive,
         hideDistantPrimitives, distanceForClusterSpawn, excludedNamesForUnspawningDistantObjects,
         maxDistanceForPrimitiveCluster, maxPrimitivesPerCluster);
 
@@ -552,7 +581,7 @@ namespace MEROptimizer.Application
 
 
 
-      if (ev.Schematic == null) return;
+      if (Schematic == null) return;
 
       foreach (PrimitiveObjectToy primitive in primitivesToDestroy)
       {
@@ -563,14 +592,13 @@ namespace MEROptimizer.Application
       Timing.CallDelayed(1f, () =>
       {
 
-        if (ev.Schematic == null || schematic == null) return;
-        schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null).Count();
-        schematic.schematicServerSidePrimitiveEmptiesCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null && p.PrimitiveFlags == PrimitiveFlags.None).Count();
+        if (Schematic == null || schematic == null) return;
+        schematic.schematicServerSidePrimitiveCount = Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null).Count();
+        schematic.schematicServerSidePrimitiveEmptiesCount = Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null && p.PrimitiveFlags == PrimitiveFlags.None).Count();
 
       });
 
       //DestroyPrimitives(ev.Schematic, primitivesToDestroy);
-
     }
 
 
