@@ -70,7 +70,7 @@
       <HintPath>deps\Mirror_publicized.dll</HintPath>
     </Reference>
     <Reference Include="ProjectMER">
-      <HintPath>..\Ghostz-Schizo-Plugins\refs\ProjectMER.dll</HintPath>
+      <HintPath>deps\ProjectMER.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
