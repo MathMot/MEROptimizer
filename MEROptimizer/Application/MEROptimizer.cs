@@ -480,6 +480,7 @@ namespace MEROptimizer.Application
       if (!Round.IsRoundStarted)
       {
         awaitingSchematics.Add(ev.Schematic);
+        return;
       }
 
       HandleSchematic(ev.Schematic);
