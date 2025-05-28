@@ -198,12 +198,14 @@ namespace MEROptimizer.MEROptimizer.Application
           {
             if (primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable)) continue;
           }
-
-          primitives.Add(primitive, clusterChilds);
-          continue;
+          if (primitive.PrimitiveFlags != PrimitiveFlags.None)
+          {
+            primitives.Add(primitive, clusterChilds);
+          }
+          //continue;
         }
 
-        if (!child.TryGetComponent(out MapEditorObject _) && !parentToExclude.Contains(child))
+        if (!parentToExclude.Contains(child))
         {
           if (!excludedNames.Any(n => child.name.ToLower().Contains(n.ToLower())))
           {
