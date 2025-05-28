@@ -1,4 +1,4 @@
-﻿using LabApi.Features.Wrappers;
+﻿using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MEROptimizer.Application.Components
+namespace MEROptimizer.MEROptimizer.Application.Components
 {
   public class PlayerTrigger : MonoBehaviour
   {
@@ -21,7 +21,7 @@ namespace MEROptimizer.Application.Components
     }
 
 
-    public void Update()
+    void Update()
     {
       if (player == null || player.ReferenceHub == null || player.ReferenceHub.transform == null)
       {

@@ -1,13 +1,14 @@
 ﻿using CommandSystem;
-using LabApi.Features.Wrappers;
+using Exiled.API.Features;
+using Exiled.API.Features.Pickups;
 using MEC;
-using MEROptimizer.Application.Components;
+using MEROptimizer.MEROptimizer.Application.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MEROptimizer.Application.Commands
+namespace MEROptimizer.MEROptimizer.Application.Commands
 {
   [CommandHandler(typeof(RemoteAdminCommandHandler))]
   public class DisplayPrimitivesCmd : ICommand, IUsageProvider

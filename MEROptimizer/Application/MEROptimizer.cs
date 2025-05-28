@@ -1,9 +1,11 @@
 ﻿using AdminToys;
-using Logger = LabApi.Features.Console.Logger;
-using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
-using LabApi.Events.Arguments.PlayerEvents;
+using Exiled.API.Extensions;
+using Exiled.API.Features;
+using Exiled.API.Features.Toys;
+using Exiled.Events.EventArgs.Player;
+using ProjectMER.Features.Objects;
 using MEC;
-using MEROptimizer.Application.Components;
+using MEROptimizer.MEROptimizer.Application.Components;
 using Mirror;
 using PlayerRoles;
 using System;
@@ -14,12 +16,9 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
-using LabApi.Features.Wrappers;
 using ProjectMER.Events.Arguments;
-using ProjectMER.Features.Objects;
-using ProjectMER.Events.Handlers;
 
-namespace MEROptimizer.Application
+namespace MEROptimizer.MEROptimizer.Application
 {
   public class MEROptimizer
   {
@@ -33,8 +32,6 @@ namespace MEROptimizer.Application
     private Mesh capsuleMesh;
 
     private Mesh cylinderMesh;
-
-    public static uint PrimitiveAssetId;
 
     /*
     private Mesh quadMesh;
@@ -66,15 +63,14 @@ namespace MEROptimizer.Application
 
     public static float MinimumSizeBeforeBeingBigPrimitive;
 
+
     public static bool isDynamiclyDisabled = false;
 
-    public static bool IsDebug = false;
 
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
       //Config
-      MEROptimizer.IsDebug = config.Debug;
       excludeCollidables = config.OptimizeOnlyNonCollidable;
       excludedNames = config.excludeObjects;
 
@@ -88,15 +84,16 @@ namespace MEROptimizer.Application
       MinimumSizeBeforeBeingBigPrimitive = config.MinimumSizeBeforeBeingBigPrimitive;
       ShouldTutorialsBeAffectedByDistanceSpawning = config.ShouldTutorialsBeAffectedByDistanceSpawning;
       CustomSchematicSpawnDistance = config.CustomSchematicSpawnDistance;
+      // Exiled Events
 
-      // LabAPI Events
-      LabApi.Events.Handlers.PlayerEvents.Joined += OnJoined;
-      LabApi.Events.Handlers.PlayerEvents.Spawned += OnSpawned;
-      LabApi.Events.Handlers.PlayerEvents.ChangedSpectator += OnChangedSpectator;
-      LabApi.Events.Handlers.ServerEvents.WaitingForPlayers += OnWaitingForPlayers;
+      Exiled.Events.Handlers.Player.Verified += OnVerified;
+      Exiled.Events.Handlers.Player.Spawned += OnSpawned;
+      Exiled.Events.Handlers.Player.ChangingSpectatedPlayer += OnChangingSpectatedPlayer;
+      Exiled.Events.Handlers.Server.WaitingForPlayers += OnWaitingForPlayers;
 
 
       // MER Events
+
       ProjectMER.Events.Handlers.Schematic.SchematicSpawned += OnSchematicSpawned;
       ProjectMER.Events.Handlers.Schematic.SchematicDestroyed += OnSchematicDestroyed;
 
@@ -104,11 +101,12 @@ namespace MEROptimizer.Application
 
     public void Unload()
     {
-      // LabAPI Events
-      LabApi.Events.Handlers.PlayerEvents.Joined -= OnJoined;
-      LabApi.Events.Handlers.PlayerEvents.Spawned -= OnSpawned;
-      LabApi.Events.Handlers.PlayerEvents.ChangedSpectator -= OnChangedSpectator;
-      LabApi.Events.Handlers.ServerEvents.WaitingForPlayers -= OnWaitingForPlayers;
+      // Exiled Events
+
+      Exiled.Events.Handlers.Player.Verified -= OnVerified;
+      Exiled.Events.Handlers.Player.Spawned -= OnSpawned;
+      Exiled.Events.Handlers.Player.ChangingSpectatedPlayer -= OnChangingSpectatedPlayer;
+      Exiled.Events.Handlers.Server.WaitingForPlayers -= OnWaitingForPlayers;
 
       // MER Events
 
@@ -121,33 +119,14 @@ namespace MEROptimizer.Application
 
     // ---------------------- Private methods
 
-    public static void Debug(string message)
-    {
-      if (!MEROptimizer.IsDebug) return;
-      Logger.Debug(message);
-    }
-
     private void Clear()
     {
       optimizedSchematics.Clear();
     }
 
-    private GameObject tempPrimitivePrefab;
     private void GenerateMeshFilters()
     {
-      if (tempPrimitivePrefab == null)
-      {
-        if (!NetworkClient.prefabs.ContainsKey(1321952889u))
-        {
-          Logger.Error("Can't generate proper colliders for primitives, primitive gameobject is not found.");
-          return;
-        }
-
-        tempPrimitivePrefab = NetworkClient.prefabs.Where(k => k.Key == 1321952889u).FirstOrDefault().Value;
-        PrimitiveAssetId = tempPrimitivePrefab.GetComponent<NetworkIdentity>().assetId;
-      }
-
-      GameObject toy = UnityEngine.GameObject.Instantiate(tempPrimitivePrefab);
+      GameObject toy = UnityEngine.GameObject.Instantiate(Primitive.Prefab.gameObject);
       PrimitiveObjectToy primitive = toy.GetComponent<PrimitiveObjectToy>();
 
       primitive.NetworkPosition = new Vector3(0f, 0f, 0f);
@@ -203,13 +182,12 @@ namespace MEROptimizer.Application
 
         if (child.TryGetComponent(out PrimitiveObjectToy primitive))
         {
-
           if (excludedNames.Any(n => primitive.name.ToLower().Contains(n.ToLower())))
           {
             continue;
           }
 
-          // Keep the quads/planes, colliders are buggy, + removing primitives working as empty for MER
+          // Keep the quads/planes, colliders are buggy
           if ((primitive.PrimitiveType == PrimitiveType.Quad || primitive.PrimitiveType == PrimitiveType.Plane)
             && primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
           {
@@ -221,15 +199,11 @@ namespace MEROptimizer.Application
             if (primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable)) continue;
           }
 
-          if (primitive.PrimitiveFlags != PrimitiveFlags.None)
-          {
-            primitives.Add(primitive, clusterChilds);
-          }
-
-          //continue;
+          primitives.Add(primitive, clusterChilds);
+          continue;
         }
 
-        if (!parentToExclude.Contains(child))
+        if (!child.TryGetComponent(out MapEditorObject _) && !parentToExclude.Contains(child))
         {
           if (!excludedNames.Any(n => child.name.ToLower().Contains(n.ToLower())))
           {
@@ -258,68 +232,72 @@ namespace MEROptimizer.Application
 
     private void AddPlayerTrigger(Player player)
     {
-      MEROptimizer.Debug($"Adding PlayerTrigger to {player.DisplayName}({player.PlayerId}) !");
-      GameObject playerTrigger = new GameObject($"{player.PlayerId}_MERO_TRIGGER");
+      Log.Debug($"Adding PlayerTrigger to {player.DisplayNickname}({player.Id}) !");
+      GameObject playerTrigger = new GameObject($"{player.Id}_MERO_TRIGGER");
       playerTrigger.tag = "Player";
 
       Rigidbody rb = playerTrigger.AddComponent<Rigidbody>();
       rb.isKinematic = true;
 
-      playerTrigger.AddComponent<BoxCollider>().size = new Vector3(1, 2, 1); // epic representation of a player's hitbox
+      playerTrigger.AddComponent<BoxCollider>().size = new Vector3(1, 2, 1); // epic representation of a player's collision
 
       playerTrigger.AddComponent<PlayerTrigger>().player = player;
 
     }
-    private void OnJoined(PlayerJoinedEventArgs ev)
+    private void OnVerified(VerifiedEventArgs ev)
     {
-      if (ev.Player == null || ev.Player.IsNpc) return;
+      if (ev.Player == null || !ev.Player.IsVerified) return;
 
       AddPlayerTrigger(ev.Player);
       foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
       {
-        MEROptimizer.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just connected !");
+        Log.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he just connected !");
         schematic.SpawnClientPrimitives(ev.Player);
       }
     }
 
     // one of the worst code i've ever written, i'm sorry about that
-    private void OnSpawned(PlayerSpawnedEventArgs ev)
+    private void OnSpawned(SpawnedEventArgs ev)
     {
       if (ev.Player == null) return;
 
-      if (ev.Player.IsNpc)
+      if (!ev.Player.IsVerified)
       {
-        bool hasFound = false;
-
-        for (int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
+        if (ev.Player.IsNPC)
         {
-          Transform child = ev.Player.GameObject.transform.GetChild(i);
-          if (child != null && child.name == $"{ev.Player.PlayerId}_MERO_TRIGGER")
+          bool hasFound = false;
+
+          for (int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
           {
-            hasFound = true;
-            break;
+            Transform child = ev.Player.GameObject.transform.GetChild(i);
+            if (child != null && child.name == $"{ev.Player.Id}_MERO_TRIGGER")
+            {
+              hasFound = true;
+              break;
+            }
+          }
+
+          if (!hasFound)
+          {
+            AddPlayerTrigger(ev.Player);
           }
         }
 
-        if (!hasFound)
-        {
-          AddPlayerTrigger(ev.Player);
-        }
       }
       else
       {
 
         // just spawned as a spectator, we spawn all clusters primitives for him
-        if ((ev.Player.Role == RoleTypeId.Spectator || ev.Player.Role == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
+        if ((ev.Player.Role.Type == RoleTypeId.Spectator || ev.Player.Role.Type == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
         {
           // Unspawning and then respawning primitives at the same frame causes the game to shit itself, so a delay is needed
           Timing.CallDelayed(.5f, () =>
           {
-            if (ev.Player != null && (ev.Player.Role == RoleTypeId.Spectator || ev.Player.Role == RoleTypeId.Overwatch))
+            if (ev.Player != null && (ev.Player.Role.Type == RoleTypeId.Spectator || ev.Player.Role.Type == RoleTypeId.Overwatch))
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                Log.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -339,16 +317,16 @@ namespace MEROptimizer.Application
           });
 
         }
-        if (!ShouldTutorialsBeAffectedByDistanceSpawning && ev.Player.Role == RoleTypeId.Tutorial)
+        if (!ShouldTutorialsBeAffectedByDistanceSpawning && ev.Player.Role.Type == RoleTypeId.Tutorial)
         {
           Timing.CallDelayed(.5f, () =>
           {
 
-            if (ev.Player != null && ev.Player.Role == RoleTypeId.Tutorial)
+            if (ev.Player != null && ev.Player.Role.Type == RoleTypeId.Tutorial)
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                Log.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -373,7 +351,7 @@ namespace MEROptimizer.Application
         {
           foreach (OptimizedSchematic schematic in optimizedSchematics)
           {
-            MEROptimizer.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+            Log.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
             foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
             {
               if (!cluster.insidePlayers.Contains(ev.Player))
@@ -384,15 +362,15 @@ namespace MEROptimizer.Application
             }
           }
 
-          if (ev.Player.Role == RoleTypeId.Filmmaker || ev.Player.Role == RoleTypeId.Scp079)
+          if (ev.Player.Role.Type == RoleTypeId.Filmmaker || ev.Player.Role.Type == RoleTypeId.Scp079)
           {
             Timing.CallDelayed(.5f, () =>
             {
-              if (ev.Player != null && (ev.Player.Role == RoleTypeId.Filmmaker || ev.Player.Role == RoleTypeId.Scp079))
+              if (ev.Player != null && (ev.Player.Role.Type == RoleTypeId.Filmmaker || ev.Player.Role.Type == RoleTypeId.Scp079))
               {
                 foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
                 {
-                  MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                  Log.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayNickname} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                   foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                   {
@@ -418,11 +396,11 @@ namespace MEROptimizer.Application
 
     }
 
-    private void OnChangedSpectator(PlayerChangedSpectatorEventArgs ev)
+    private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
     {
       if (shouldSpectatorsBeAffectedByPDS)
       {
-        if (ev.Player == null || ev.Player.IsNpc || ev.NewTarget == null) return;
+        if (ev.Player == null || (!ev.Player.IsVerified && !ev.Player.IsNPC) || ev.NewTarget == null) return;
 
         foreach (OptimizedSchematic schematic in optimizedSchematics)
         {
@@ -447,15 +425,14 @@ namespace MEROptimizer.Application
 
     private void OnSchematicSpawned(SchematicSpawnedEventArgs ev)
     {
-
       if (isDynamiclyDisabled)
       {
-        Logger.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
+        Log.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
         return;
       }
       if (!hasGenerated)
       {
-        Logger.Error($"Unable to generate Optimized Schematic for {ev.Schematic.Name} because mesh filters are not generated yet !");
+        Log.Error($"Unable to generate Optimized Schematic for {ev.Schematic.Name} because mesh filters are not generated yet !");
         return;
       }
 
@@ -474,8 +451,6 @@ namespace MEROptimizer.Application
         parentsToExlude.Add(anim.transform);
       }
 
-
-
       Dictionary<PrimitiveObjectToy, bool> primitivesToOptimize = GetPrimitivesToOptimize(ev.Schematic.transform, parentsToExlude);
 
       if (primitivesToOptimize == null || primitivesToOptimize.IsEmpty()) return;
@@ -489,15 +464,20 @@ namespace MEROptimizer.Application
       foreach (PrimitiveObjectToy primitive in primitivesToOptimize.Keys.ToList())
       {
         // Retrieve data
+
         Vector3 position = primitive.transform.position;
         Quaternion rotation = primitive.transform.rotation;
+
         Vector3 scale = primitive.transform.lossyScale;
+
         PrimitiveType primitiveType = primitive.PrimitiveType;
+
         Color color = primitive.NetworkMaterialColor;
+
         PrimitiveFlags primitiveFlags = primitive.PrimitiveFlags;
 
-
         // store the data about the primitive
+
         clientSidePrimitive.Add(new ClientSidePrimitive(position, rotation, scale, primitiveType, color, primitiveFlags), primitivesToOptimize[primitive]);
 
         // Add collider for the server if the primitive is collidable
@@ -553,26 +533,29 @@ namespace MEROptimizer.Application
 
 
       if (ev.Schematic == null) return;
+      Log.Debug($"Destroying server-side primitives of {ev.Schematic.Name}");
+      DestroyPrimitives(ev.Schematic, primitivesToDestroy);
 
-      foreach (PrimitiveObjectToy primitive in primitivesToDestroy)
-      {
-        if (primitive == null) continue;
-        //ev.Schematic._attachedBlocks.Remove(primitive.gameObject);
-        GameObject.Destroy(primitive.gameObject);
-      }
       Timing.CallDelayed(1f, () =>
       {
+        if (schematic == null || ev.Schematic == null) return;
+        schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Count();
 
-        if (ev.Schematic == null || schematic == null) return;
-        schematic.schematicServerSidePrimitiveCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null).Count();
-        schematic.schematicServerSidePrimitiveEmptiesCount = ev.Schematic.GetComponentsInChildren<PrimitiveObjectToy>().Where(p => p != null && p.PrimitiveFlags == PrimitiveFlags.None).Count();
 
       });
 
-      //DestroyPrimitives(ev.Schematic, primitivesToDestroy);
-
     }
 
+    private void DestroyPrimitives(SchematicObject schematic, List<PrimitiveObjectToy> primitives)
+    {
+      foreach (PrimitiveObjectToy primitive in primitives.Where(p => p != null && p.gameObject != null))
+      {
+        //schematic?.AttachedBlocks.Remove(primitive.gameObject);
+        //primitive.Destroy();
+        NetworkServer.Destroy(primitive.gameObject);
+        if (primitive.gameObject) GameObject.Destroy(primitive.gameObject);
+      }
+    }
 
     private void OnSchematicDestroyed(SchematicDestroyedEventArgs ev)
     {

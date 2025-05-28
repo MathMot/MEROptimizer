@@ -1,5 +1,5 @@
-﻿using Logger = LabApi.Features.Console.Logger;
-using LabApi.Features.Wrappers;
+﻿using Exiled.API.Features;
+using Exiled.API.Features.Toys;
 using MEC;
 using PlayerRoles;
 using ProjectMER.Features.Objects;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using static PlayerList;
 
-namespace MEROptimizer.Application.Components
+namespace MEROptimizer.MEROptimizer.Application.Components
 {
   public class OptimizedSchematic
   {
@@ -27,9 +27,7 @@ namespace MEROptimizer.Application.Components
 
     public DateTime spawnTime { get; set; }
 
-    public int schematicServerSidePrimitiveEmptiesCount = -1;
-
-    public int schematicServerSidePrimitiveCount = -1;
+    public int schematicServerSidePrimitiveCount { get; set; } = -1;
 
     public int GetTotalPrimitiveCount()
     {
@@ -202,24 +200,24 @@ namespace MEROptimizer.Application.Components
 
         if (this == null) return;
 
-        foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
+        foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
         {
           bool shouldSpawn = false;
 
           // Tutorials if config is enabled
-          if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == RoleTypeId.Tutorial)
+          if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role.Type == RoleTypeId.Tutorial)
           {
             shouldSpawn = true;
           }
 
           // Spectators if config is enabled
-          if (!Application.MEROptimizer.shouldSpectatorsBeAffectedByPDS && (player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch))
+          if (!Application.MEROptimizer.shouldSpectatorsBeAffectedByPDS && (player.Role.Type == RoleTypeId.Spectator || player.Role.Type == RoleTypeId.Overwatch))
           {
             shouldSpawn = true;
           }
 
           // Theses role always see all of the maps
-          if (player.Role == RoleTypeId.Filmmaker || player.Role == RoleTypeId.Scp079)
+          if (player.Role.Type == RoleTypeId.Filmmaker || player.Role.Type == RoleTypeId.Scp079)
           {
             shouldSpawn = true;
           }
@@ -254,7 +252,7 @@ namespace MEROptimizer.Application.Components
       {
         primitive.SpawnClientPrimitive(player);
       }
-      MEROptimizer.Debug($"Refresh the schematic {this.schematicName} for {player.DisplayName} !");
+      Log.Debug($"Refresh the schematic {this.schematicName} for {player.DisplayNickname} !");
     }
 
     public void HideFor(Player player, bool showDebug = true)
@@ -262,7 +260,7 @@ namespace MEROptimizer.Application.Components
       if (player == null) return;
       if (showDebug)
       {
-        MEROptimizer.Debug($"Hiding client side primitives of {this.schematicName} to {player.DisplayName}");
+        Log.Debug($"Hiding client side primitives of {this.schematicName} to {player.DisplayNickname}");
       }
 
       foreach (ClientSidePrimitive primitive in nonClusteredPrimitives)
@@ -275,8 +273,8 @@ namespace MEROptimizer.Application.Components
 
     public void SpawnClientPrimitivesToAll()
     {
-      MEROptimizer.Debug($"Displaying {schematicName}'s client side primitives !");
-      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
+      Log.Debug($"Displaying {schematicName}'s client side primitives !");
+      foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
       {
         SpawnClientPrimitives(player);
       }
@@ -286,7 +284,7 @@ namespace MEROptimizer.Application.Components
     {
       if (player == null) return;
 
-      MEROptimizer.Debug($"Displaying client side primitives of {this.schematicName} to {player.DisplayName}");
+      Log.Debug($"Displaying client side primitives of {this.schematicName} to {player.DisplayNickname}");
       foreach (ClientSidePrimitive primitive in nonClusteredPrimitives)
       {
         primitive.SpawnClientPrimitive(player);
@@ -310,7 +308,7 @@ namespace MEROptimizer.Application.Components
         UnityEngine.Object.Destroy(cluster);
       }
 
-      MEROptimizer.Debug($"Destroyed client side schematic of {schematicName} !");
+      Log.Debug($"Destroyed client side schematic {schematicName} !");
     }
   }
 }

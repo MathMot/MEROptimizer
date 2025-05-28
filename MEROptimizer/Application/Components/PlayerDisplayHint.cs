@@ -1,4 +1,4 @@
-﻿using LabApi.Features.Wrappers;
+﻿using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MEROptimizer.Application.Components
+namespace MEROptimizer.MEROptimizer.Application.Components
 {
   public class PlayerDisplayHint : MonoBehaviour
   {
@@ -51,7 +51,23 @@ namespace MEROptimizer.Application.Components
           return;
         }
 
-        player.SendHint($"Loaded <color=green>{count}</color> out of a total of <color=red>{totalPrimitiveCount}</color> primitives", .5f);
+        string oldText = "";
+        if (player.HasHint)
+        {
+          oldText = player.CurrentHint.Content;
+
+          if (oldText.Contains("Loaded <color=green>") && oldText.Contains("</color> primitives"))
+          {
+            int start = oldText.LastIndexOf("\nLoaded <color=green>");
+            int end = oldText.IndexOf("</color> primitives", start) + "</color> primitives".Length;
+            oldText = oldText.Remove(start, end - start);
+          }
+        }
+
+        if (oldText != "") oldText += "\n";
+
+        player.ShowHint($"{oldText}Loaded <color=green>{count}</color> out of a total of <color=red>{totalPrimitiveCount}</color> primitives", 2);
+
 
       }
     }

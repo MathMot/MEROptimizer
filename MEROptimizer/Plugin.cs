@@ -1,36 +1,45 @@
 ﻿// #DivaDevs (ﾉ>ω<)ﾉ*✲ﾟ*｡✲ﾟ 
+using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LabApi.Features;
-using MEROptimizer.Application;
+using MEROptimizer.MEROptimizer.Application;
+using HarmonyLib;
+using Exiled.API.Enums;
 
-namespace MEROptimizer
+namespace MEROptimizer.MEROptimizer
 {
-  public class Plugin : LabApi.Loader.Features.Plugins.Plugin<Config>
+  public class Plugin : Plugin<Config>
   {
     public override string Name => "MEROptimizer";
-    public override string Author { get; } = "Math";
+    public override string Author => "Math";
+    public override string Prefix => "mero";
+    public override PluginPriority Priority { get; } = PluginPriority.Low;
 
-    public override string Description { get; } = "Meant to optimize MapEditorReborn primitives by making them client sided + Providing an API to spawn & handle client side primitives.";
-    public override Version Version { get; } = new Version(2, 0, 1, 0);
-
-    public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
+    private static int patchCount = 1;
 
     public static Application.MEROptimizer merOptimizer;
-    public override void Enable()
+    private Harmony harmony;
+    public override void OnEnabled()
     {
       merOptimizer = new Application.MEROptimizer();
       merOptimizer.Load(Config);
 
+      // Harmony
+      harmony = new Harmony($"{Author.ToLower()}.{Name.ToLower()}.{patchCount++}");
+      harmony.PatchAll();
+
+      Log.Info($"{Name} v{Version.Major}.{Version.Minor}.{Version.Build} by {Author} has been enabled!");
     }
 
-    public override void Disable()
+    public override void OnDisabled()
     {
       merOptimizer?.Unload();
       merOptimizer = null;
+      harmony?.UnpatchAll();
+      harmony = null;
     }
   }
 }

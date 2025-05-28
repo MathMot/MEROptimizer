@@ -1,12 +1,13 @@
 ﻿using CommandSystem;
-using LabApi.Features.Wrappers;
-using MEROptimizer.Application.Components;
+using Exiled.API.Features;
+using Exiled.API.Features.Pickups;
+using MEROptimizer.MEROptimizer.Application.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MEROptimizer.Application.Commands
+namespace MEROptimizer.MEROptimizer.Application.Commands
 {
   [CommandHandler(typeof(RemoteAdminCommandHandler))]
   public class ClusterInfoCmd : ICommand

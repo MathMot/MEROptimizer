@@ -50,6 +50,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>deps\Assembly-CSharp-firstpass.dll</HintPath>
@@ -61,6 +65,34 @@
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>deps\CommandSystem.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.API, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.API.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.CreditTags, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.CreditTags.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.CustomItems, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.CustomItems.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.CustomRoles, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.CustomRoles.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.Events, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.Events.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.Loader, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.Loader.dll</HintPath>
+    </Reference>
+    <Reference Include="Exiled.Permissions, Version=9.5.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ghostz-Schizo-Plugins\refs\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="LabApi">
       <HintPath>deps\LabApi.dll</HintPath>

@@ -1,6 +1,6 @@
 ﻿using AdminToys;
-using Logger = LabApi.Features.Console.Logger;
-using LabApi.Features.Wrappers;
+using Exiled.API.Features;
+using Exiled.API.Features.Toys;
 using Mirror;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MEROptimizer.Application.Components
+namespace MEROptimizer.MEROptimizer.Application.Components
 {
   public class ClientSidePrimitive
   {
@@ -60,7 +60,7 @@ namespace MEROptimizer.Application.Components
         isLocalPlayer = false,
         isOwner = false,
         sceneId = 0,
-        assetId = MEROptimizer.PrimitiveAssetId,
+        assetId = Primitive.Prefab.netIdentity.assetId,
         position = position,
         rotation = rotation,
         scale = scale,
@@ -76,7 +76,7 @@ namespace MEROptimizer.Application.Components
 
     public void DestroyForEveryone()
     {
-      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
+      foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
       {
         DestroyClientPrimitive(player);
       }
@@ -89,7 +89,7 @@ namespace MEROptimizer.Application.Components
 
     public void SpawnForEveryone()
     {
-      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
+      foreach (Player player in Player.List.Where(p => p != null && p.IsVerified))
       {
         SpawnClientPrimitive(player);
       }
@@ -98,7 +98,6 @@ namespace MEROptimizer.Application.Components
     public void SpawnClientPrimitive(Player target)
     {
       //DestroyClientPrimitive(target);
-
       target?.Connection?.Send(spawnMessage);
     }
   }

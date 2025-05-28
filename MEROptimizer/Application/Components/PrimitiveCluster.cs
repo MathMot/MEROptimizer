@@ -1,5 +1,5 @@
 ﻿using AdminToys;
-using LabApi.Features.Wrappers;
+using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace MEROptimizer.Application.Components
+namespace MEROptimizer.MEROptimizer.Application.Components
 {
   public class PrimitiveCluster : MonoBehaviour
   {
@@ -72,11 +72,11 @@ namespace MEROptimizer.Application.Components
 
       if (player == null) return;
 
-      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == PlayerRoles.RoleTypeId.Tutorial) return;
+      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role.Type == PlayerRoles.RoleTypeId.Tutorial) return;
 
-      if (player.Role == PlayerRoles.RoleTypeId.Filmmaker) return;
+      if (player.Role.Type == PlayerRoles.RoleTypeId.Filmmaker) return;
 
-      if (!player.IsNpc)
+      if (!player.IsNPC)
       {
         if (instantSpawn)
         {
@@ -127,7 +127,7 @@ namespace MEROptimizer.Application.Components
           break;
         }
 
-        List<Player> spectatingPlayers = player.CurrentSpectators.ToList();
+        List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
 
         for (int i = 0; i < (multiFrameSpawn ? 1 : numberOfPrimitivePerSpawn); i++)
         {
@@ -160,9 +160,9 @@ namespace MEROptimizer.Application.Components
 
       if (player == null) return;
 
-      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == PlayerRoles.RoleTypeId.Tutorial) return;
+      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role.Type == PlayerRoles.RoleTypeId.Tutorial) return;
 
-      if (player.Role == PlayerRoles.RoleTypeId.Filmmaker) return;
+      if (player.Role.Type == PlayerRoles.RoleTypeId.Filmmaker) return;
 
 
       awaitingSpawn.Remove(player);
@@ -173,25 +173,23 @@ namespace MEROptimizer.Application.Components
 
     }
 
-    
 
     public void SpawnFor(Player player)
     {
-      if (player == null || player.IsNpc) return;
+      if (player == null || !player.IsVerified) return;
       foreach (ClientSidePrimitive primitive in primitives)
       {
-
         primitive.SpawnClientPrimitive(player);
       }
     }
 
     public void UnspawnFor(Player player)
     {
-      if (player == null || player.IsNpc) return;
+      if (player == null || !player.IsVerified) return;
 
       awaitingSpawn.Remove(player);
 
-      List<Player> spectatingPlayers = player.CurrentSpectators;
+      List<Player> spectatingPlayers = player.CurrentSpectatingPlayers.ToList();
       foreach (ClientSidePrimitive primitive in primitives)
       {
         primitive.DestroyClientPrimitive(player);
