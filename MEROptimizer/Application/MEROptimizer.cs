@@ -77,6 +77,7 @@ namespace MEROptimizer.Application
       excludeCollidables = config.OptimizeOnlyNonCollidable;
 
       //temp
+      excludedNames = new List<string>();
       foreach (string name in config.excludeObjects)
       {
         excludedNames.Add(name.ToLower());
