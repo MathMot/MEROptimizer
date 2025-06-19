@@ -49,7 +49,6 @@ namespace MEROptimizer.Application.Commands
           $"Total primitive count : {os.GetTotalPrimitiveCount() + os.schematicServerSidePrimitiveCount}\n" +
           $"Client side primitive count: {os.GetTotalPrimitiveCount()}\n" +
           $"Server side primitive count: {os.schematicServerSidePrimitiveCount}\n" +
-          $"Server side primitive counting as empty objects count: {os.schematicServerSidePrimitiveEmptiesCount}\n" +
           $"Number of server side colliders : {os.colliders.Count}\n" +
           $"Number of clusters : {os.primitiveClusters.Count}\n----------------\n";
       }

@@ -29,7 +29,7 @@ namespace MEROptimizer.Application.Components
 
     public int schematicServerSidePrimitiveEmptiesCount = -1;
 
-    public int schematicServerSidePrimitiveCount = -1;
+    public int schematicServerSidePrimitiveCount { get; set; } = -1;
 
     public int GetTotalPrimitiveCount()
     {
