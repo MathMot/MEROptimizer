@@ -72,7 +72,11 @@ namespace MEROptimizer.MEROptimizer.Application
     {
       //Config
       excludeCollidables = config.OptimizeOnlyNonCollidable;
-      excludedNames = config.excludeObjects;
+
+      foreach (string name in config.excludeObjects)
+      {
+        excludedNames.Add(name.ToLower());
+      }
 
       hideDistantPrimitives = config.ClusterizeSchematic;
       distanceRequiredForUnspawning = config.SpawnDistance;
