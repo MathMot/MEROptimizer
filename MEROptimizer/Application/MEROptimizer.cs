@@ -73,10 +73,14 @@ namespace MEROptimizer.Application
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
-      //Config
       MEROptimizer.IsDebug = config.Debug;
       excludeCollidables = config.OptimizeOnlyNonCollidable;
-      excludedNames = config.excludeObjects;
+
+      //temp
+      foreach (string name in config.excludeObjects)
+      {
+        excludedNames.Add(name.ToLower());
+      }
 
       hideDistantPrimitives = config.ClusterizeSchematic;
       distanceRequiredForUnspawning = config.SpawnDistance;
@@ -124,7 +128,12 @@ namespace MEROptimizer.Application
     public static void Debug(string message)
     {
       if (!MEROptimizer.IsDebug) return;
+
+#if EXILED
+      Exiled.API.Features.Log.Debug(message);
+#else
       Logger.Debug(message);
+#endif
     }
 
     private void Clear()
