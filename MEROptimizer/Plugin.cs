@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if EXILED
 using Exiled.API.Enums;
+#endif
 using LabApi.Features;
 using MEROptimizer.Application;
 
