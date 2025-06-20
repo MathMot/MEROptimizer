@@ -117,4 +117,7 @@
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if "$(ConfigurationName)"=="ReleaseEXILED" ( xcopy "$(TargetPath)" "$(TargetDir)MEROptimizerEXILED.dll" /y)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

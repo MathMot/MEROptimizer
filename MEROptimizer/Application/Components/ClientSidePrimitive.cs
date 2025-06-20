@@ -89,7 +89,7 @@ namespace MEROptimizer.Application.Components
 
     public void SpawnForEveryone()
     {
-      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
+      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc && !p.IsDummy))
       {
         SpawnClientPrimitive(player);
       }
@@ -97,9 +97,9 @@ namespace MEROptimizer.Application.Components
 
     public void SpawnClientPrimitive(Player target)
     {
-      //DestroyClientPrimitive(target);
+      if (target == null || target.IsHost) return; // DO NOT SEND THIS TO THE DEDICATED OTHERWISE EVERYTHING WILL BROKE TRUST ME I LOST 3 MONTHS OF MY LIFE BECAUSE OF THIS
 
-      target?.Connection?.Send(spawnMessage);
+      target.Connection?.Send(spawnMessage);
     }
   }
 }
