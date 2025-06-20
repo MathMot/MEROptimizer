@@ -4,11 +4,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Exiled.API.Enums;
 using LabApi.Features;
 using MEROptimizer.Application;
 
 namespace MEROptimizer
 {
+#if EXILED
+  public class Plugin : Exiled.API.Features.Plugin<Config>
+  {
+    public override string Name => "MEROptimizer";
+    public override string Author => "Math";
+    public override string Prefix => "mero";
+    public override PluginPriority Priority { get; } = PluginPriority.Low;
+
+    public static Application.MEROptimizer merOptimizer;
+
+    public override void OnEnabled()
+    {
+      merOptimizer = new Application.MEROptimizer();
+      merOptimizer.Load(Config);
+
+      base.OnEnabled();
+    }
+
+    public override void OnDisabled()
+    {
+      merOptimizer?.Unload();
+      merOptimizer = null;
+
+      base.OnDisabled();
+    }
+  }
+
+#else
   public class Plugin : LabApi.Loader.Features.Plugins.Plugin<Config>
   {
     public override string Name => "MEROptimizer";
@@ -33,4 +62,7 @@ namespace MEROptimizer
       merOptimizer = null;
     }
   }
+
+#endif
 }
+

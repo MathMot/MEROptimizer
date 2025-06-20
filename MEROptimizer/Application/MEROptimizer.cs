@@ -18,7 +18,9 @@ using LabApi.Features.Wrappers;
 using ProjectMER.Events.Arguments;
 using ProjectMER.Features.Objects;
 using ProjectMER.Events.Handlers;
-
+#if EXILED
+using Exiled.Events.EventArgs.Player;
+#endif
 namespace MEROptimizer.Application
 {
   public class MEROptimizer
@@ -73,10 +75,15 @@ namespace MEROptimizer.Application
     public List<OptimizedSchematic> optimizedSchematics = new List<OptimizedSchematic>();
     public void Load(Config config)
     {
-      //Config
       MEROptimizer.IsDebug = config.Debug;
       excludeCollidables = config.OptimizeOnlyNonCollidable;
-      excludedNames = config.excludeObjects;
+
+      //temp
+      excludedNames = new List<string>();
+      foreach (string name in config.excludeObjects)
+      {
+        excludedNames.Add(name.ToLower());
+      }
 
       hideDistantPrimitives = config.ClusterizeSchematic;
       distanceRequiredForUnspawning = config.SpawnDistance;
@@ -89,11 +96,18 @@ namespace MEROptimizer.Application
       ShouldTutorialsBeAffectedByDistanceSpawning = config.ShouldTutorialsBeAffectedByDistanceSpawning;
       CustomSchematicSpawnDistance = config.CustomSchematicSpawnDistance;
 
+#if EXILED
+      Exiled.Events.Handlers.Player.Verified += OnVerified;
+      Exiled.Events.Handlers.Player.Spawned += OnSpawned;
+      Exiled.Events.Handlers.Player.ChangingSpectatedPlayer += OnChangingSpectatedPlayer;
+      Exiled.Events.Handlers.Server.WaitingForPlayers += OnWaitingForPlayers;
+#else
       // LabAPI Events
       LabApi.Events.Handlers.PlayerEvents.Joined += OnJoined;
       LabApi.Events.Handlers.PlayerEvents.Spawned += OnSpawned;
       LabApi.Events.Handlers.PlayerEvents.ChangedSpectator += OnChangedSpectator;
       LabApi.Events.Handlers.ServerEvents.WaitingForPlayers += OnWaitingForPlayers;
+#endif
 
 
       // MER Events
@@ -104,11 +118,18 @@ namespace MEROptimizer.Application
 
     public void Unload()
     {
+#if EXILED
+      Exiled.Events.Handlers.Player.Verified += OnVerified;
+      Exiled.Events.Handlers.Player.Spawned += OnSpawned;
+      Exiled.Events.Handlers.Player.ChangingSpectatedPlayer += OnChangingSpectatedPlayer;
+      Exiled.Events.Handlers.Server.WaitingForPlayers += OnWaitingForPlayers;
+#else
       // LabAPI Events
-      LabApi.Events.Handlers.PlayerEvents.Joined -= OnJoined;
-      LabApi.Events.Handlers.PlayerEvents.Spawned -= OnSpawned;
-      LabApi.Events.Handlers.PlayerEvents.ChangedSpectator -= OnChangedSpectator;
-      LabApi.Events.Handlers.ServerEvents.WaitingForPlayers -= OnWaitingForPlayers;
+      LabApi.Events.Handlers.PlayerEvents.Joined += OnJoined;
+      LabApi.Events.Handlers.PlayerEvents.Spawned += OnSpawned;
+      LabApi.Events.Handlers.PlayerEvents.ChangedSpectator += OnChangedSpectator;
+      LabApi.Events.Handlers.ServerEvents.WaitingForPlayers += OnWaitingForPlayers;
+#endif
 
       // MER Events
 
@@ -124,7 +145,12 @@ namespace MEROptimizer.Application
     public static void Debug(string message)
     {
       if (!MEROptimizer.IsDebug) return;
+
+#if EXILED
+      Exiled.API.Features.Log.Debug(message);
+#else
       Logger.Debug(message);
+#endif
     }
 
     private void Clear()
@@ -242,8 +268,40 @@ namespace MEROptimizer.Application
       return primitives;
     }
 
-    // --------------- Events
+    // --------------- EXILED/LabAPI Events
 
+#if EXILED
+    private void OnVerified(VerifiedEventArgs ev)
+    {
+      OnPlayerJoined(ev.Player);
+    }
+
+    private void OnSpawned(SpawnedEventArgs ev)
+    {
+      OnPlayerSpawned(ev.Player);
+    }
+
+    private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
+    {
+      OnPlayerChangedSpectator(ev.Player, ev.OldTarget, ev.NewTarget);
+    }
+
+#else
+    private void OnJoined(PlayerJoinedEventArgs ev)
+    {
+      OnPlayerJoined(ev.Player);
+    }
+
+    private void OnSpawned(PlayerSpawnedEventArgs ev)
+    { 
+      OnPlayerSpawned(ev.Player);
+    }
+
+    private void OnChangedSpectator(PlayerChangedSpectatorEventArgs ev)
+    {
+      OnPlayerChangedSpectator(ev.Player, ev.OldTarget, ev.NewTarget);
+    }
+#endif
     private void OnWaitingForPlayers()
     {
       if (!hasGenerated)
@@ -270,31 +328,31 @@ namespace MEROptimizer.Application
       playerTrigger.AddComponent<PlayerTrigger>().player = player;
 
     }
-    private void OnJoined(PlayerJoinedEventArgs ev)
+    private void OnPlayerJoined(Player player)
     {
-      if (ev.Player == null || ev.Player.IsNpc) return;
+      if (player == null || player.IsNpc) return;
 
-      AddPlayerTrigger(ev.Player);
+      AddPlayerTrigger(player);
       foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
       {
-        MEROptimizer.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just connected !");
-        schematic.SpawnClientPrimitives(ev.Player);
+        MEROptimizer.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {player.DisplayName} because he just connected !");
+        schematic.SpawnClientPrimitives(player);
       }
     }
 
     // one of the worst code i've ever written, i'm sorry about that
-    private void OnSpawned(PlayerSpawnedEventArgs ev)
+    private void OnPlayerSpawned(Player player)
     {
-      if (ev.Player == null) return;
+      if (player == null) return;
 
-      if (ev.Player.IsNpc)
+      if (player.IsNpc)
       {
         bool hasFound = false;
 
-        for (int i = 0; i < ev.Player.GameObject.transform.childCount; i++)
+        for (int i = 0; i < player.GameObject.transform.childCount; i++)
         {
-          Transform child = ev.Player.GameObject.transform.GetChild(i);
-          if (child != null && child.name == $"{ev.Player.PlayerId}_MERO_TRIGGER")
+          Transform child = player.GameObject.transform.GetChild(i);
+          if (child != null && child.name == $"{player.PlayerId}_MERO_TRIGGER")
           {
             hasFound = true;
             break;
@@ -303,34 +361,34 @@ namespace MEROptimizer.Application
 
         if (!hasFound)
         {
-          AddPlayerTrigger(ev.Player);
+          AddPlayerTrigger(player);
         }
       }
       else
       {
 
         // just spawned as a spectator, we spawn all clusters primitives for him
-        if ((ev.Player.Role == RoleTypeId.Spectator || ev.Player.Role == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
+        if ((player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
         {
           // Unspawning and then respawning primitives at the same frame causes the game to shit itself, so a delay is needed
           Timing.CallDelayed(.5f, () =>
           {
-            if (ev.Player != null && (ev.Player.Role == RoleTypeId.Spectator || ev.Player.Role == RoleTypeId.Overwatch))
+            if (player != null && (player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch))
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
                   if (cluster.instantSpawn)
                   {
-                    cluster.SpawnFor(ev.Player);
+                    cluster.SpawnFor(player);
                   }
                   else
                   {
-                    cluster.awaitingSpawn.Remove(ev.Player);
-                    cluster.awaitingSpawn.Add(ev.Player, cluster.primitives.ToList());
+                    cluster.awaitingSpawn.Remove(player);
+                    cluster.awaitingSpawn.Add(player, cluster.primitives.ToList());
                     cluster.spawning = true;
                   }
                 }
@@ -339,27 +397,27 @@ namespace MEROptimizer.Application
           });
 
         }
-        if (!ShouldTutorialsBeAffectedByDistanceSpawning && ev.Player.Role == RoleTypeId.Tutorial)
+        if (!ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == RoleTypeId.Tutorial)
         {
           Timing.CallDelayed(.5f, () =>
           {
 
-            if (ev.Player != null && ev.Player.Role == RoleTypeId.Tutorial)
+            if (player!= null && player.Role == RoleTypeId.Tutorial)
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
                   if (cluster.instantSpawn)
                   {
-                    cluster.SpawnFor(ev.Player);
+                    cluster.SpawnFor(player);
                   }
                   else
                   {
-                    cluster.awaitingSpawn.Remove(ev.Player);
-                    cluster.awaitingSpawn.Add(ev.Player, cluster.primitives.ToList());
+                    cluster.awaitingSpawn.Remove(player);
+                    cluster.awaitingSpawn.Add(player, cluster.primitives.ToList());
                     cluster.spawning = true;
                   }
 
@@ -373,37 +431,37 @@ namespace MEROptimizer.Application
         {
           foreach (OptimizedSchematic schematic in optimizedSchematics)
           {
-            MEROptimizer.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {ev.Player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+            MEROptimizer.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
             foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
             {
-              if (!cluster.insidePlayers.Contains(ev.Player))
+              if (!cluster.insidePlayers.Contains(player))
               {
-                cluster.UnspawnFor(ev.Player);
+                cluster.UnspawnFor(player);
               }
 
             }
           }
 
-          if (ev.Player.Role == RoleTypeId.Filmmaker || ev.Player.Role == RoleTypeId.Scp079)
+          if (player.Role == RoleTypeId.Filmmaker || player.Role == RoleTypeId.Scp079)
           {
             Timing.CallDelayed(.5f, () =>
             {
-              if (ev.Player != null && (ev.Player.Role == RoleTypeId.Filmmaker || ev.Player.Role == RoleTypeId.Scp079))
+              if (player != null && (player.Role == RoleTypeId.Filmmaker || player.Role == RoleTypeId.Scp079))
               {
                 foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
                 {
-                  MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {ev.Player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                  MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                   foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                   {
                     if (cluster.instantSpawn)
                     {
-                      cluster.SpawnFor(ev.Player);
+                      cluster.SpawnFor(player);
                     }
                     else
                     {
-                      cluster.awaitingSpawn.Remove(ev.Player);
-                      cluster.awaitingSpawn.Add(ev.Player, cluster.primitives.ToList());
+                      cluster.awaitingSpawn.Remove(player);
+                      cluster.awaitingSpawn.Add(player, cluster.primitives.ToList());
                       cluster.spawning = true;
                     }
 
@@ -418,24 +476,24 @@ namespace MEROptimizer.Application
 
     }
 
-    private void OnChangedSpectator(PlayerChangedSpectatorEventArgs ev)
+    private void OnPlayerChangedSpectator(Player player, Player oldTarget, Player newTarget)
     {
       if (shouldSpectatorsBeAffectedByPDS)
       {
-        if (ev.Player == null || ev.Player.IsNpc || ev.NewTarget == null) return;
+        if (player == null || player.IsNpc || newTarget == null) return;
 
         foreach (OptimizedSchematic schematic in optimizedSchematics)
         {
           foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
           {
-            if (ev.OldTarget != null && (cluster.insidePlayers.Contains(ev.OldTarget) && !cluster.insidePlayers.Contains(ev.NewTarget)))
+            if (oldTarget != null && (cluster.insidePlayers.Contains(oldTarget) && !cluster.insidePlayers.Contains(newTarget)))
             {
-              cluster.UnspawnFor(ev.Player);
+              cluster.UnspawnFor(player);
             }
 
-            if (ev.NewTarget != null && cluster.insidePlayers.Contains(ev.NewTarget) && (ev.OldTarget == null || !cluster.insidePlayers.Contains(ev.OldTarget)))
+            if (newTarget != null && cluster.insidePlayers.Contains(newTarget) && (oldTarget== null || !cluster.insidePlayers.Contains(oldTarget)))
             {
-              cluster.SpawnFor(ev.Player);
+              cluster.SpawnFor(player);
             }
 
           }

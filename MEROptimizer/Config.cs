@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Exiled.API.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace MEROptimizer
 {
+#if EXILED
+  public sealed class Config : IConfig
+  {
+#else
   public class Config
   {
+#endif
+
     [Description("If the plugin is enabled or not.")]
     public bool IsEnabled { get; set; } = true;
 
