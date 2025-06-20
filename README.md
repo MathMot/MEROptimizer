@@ -1,9 +1,9 @@
 # MEROptimizer
-[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.0.0-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.0-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
+[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.1.0-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![EXILED Version](https://img.shields.io/badge/EXILED_Version-9.6.1-FFFFA0 )](https://github.com/ExMod-Team/EXILED/releases/tag/v9.6.1) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.1-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
 
 ---
 
-[SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/ProjectMER)(ProjectMER for now) schematics using the [LabAPI](https://github.com/northwood-studios/LabAPI) Framework.
+[SCP:Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) plugin made for optimizing  [MapEditorReborn](https://github.com/Michal78900/ProjectMER)(ProjectMER for now) schematics using the [LabAPI](https://github.com/northwood-studios/LabAPI) or [EXILED](https://github.com/ExMod-Team/EXILED) Framework.
 It works by destroying primitives for the server and sending clones of the primitives to the clients while simulating their collisions.
 It also supports a feature to dynamicly spawn primitives around players.
 It got also an API to create and handle client sided primitives (ClientSidePrimitive class).<br>
@@ -48,8 +48,9 @@ Setup :
 
 ---
 
-Configuration : 
+Configuration :
 -- 
+*It's the same configuration for both frameworks, some labels may change.*
 Default configuration : 
 ```yaml
 # If the plugin is enabled or not.
@@ -181,11 +182,6 @@ Informations :
 - If you're using AMERT or some sort of external plugin that interacts with in game primitives, be sure to use the exclusion feature to exclude every object that the plugin could use (for example with AMERT, every object with scripts, animations, etc.)<br>If this doesn't work, feel free to reach me via discord to find a solution.
 - SCP 079 can't use the clusterize option for now, if a player is SCP 079, he will load every maps at all times to prevent desync and stuff
 
----
-
-Known Issues : 
---
-- None because i'm the best
 
 ---
 
@@ -195,3 +191,4 @@ Credits :
 - Original idea/sample code by a friend
 - Example map in this readme is also made by a friend
 
+Thanks to a lot of members of the community for helping me find issues with the plugin.
