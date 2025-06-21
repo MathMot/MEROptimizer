@@ -76,7 +76,7 @@ namespace MEROptimizer.Application.Components
 
     public void DestroyForEveryone()
     {
-      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
+      foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc && !p.IsDummy))
       {
         DestroyClientPrimitive(player);
       }
@@ -84,7 +84,9 @@ namespace MEROptimizer.Application.Components
 
     public void DestroyClientPrimitive(Player target)
     {
-      target?.Connection?.Send(destroyMessage);
+      if (target == null || target.IsHost) return; // DO NOT SEND THIS TO THE DEDICATED OTHERWISE EVERYTHING WILL BROKE TRUST ME I LOST 3 MONTHS OF MY LIFE BECAUSE OF THIS
+
+      target.Connection?.Send(destroyMessage);
     }
 
     public void SpawnForEveryone()
