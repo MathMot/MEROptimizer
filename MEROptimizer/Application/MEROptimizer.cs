@@ -283,6 +283,7 @@ namespace MEROptimizer.Application
 
     private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
     {
+      if (ev.Player == null || ev.NewTarget == null) return;
       OnPlayerChangedSpectator(ev.Player, ev.OldTarget, ev.NewTarget);
     }
 
@@ -478,24 +479,22 @@ namespace MEROptimizer.Application
 
     private void OnPlayerChangedSpectator(Player player, Player oldTarget, Player newTarget)
     {
-      if (shouldSpectatorsBeAffectedByPDS)
+      if (!shouldSpectatorsBeAffectedByPDS) return;
+
+      if (player == null || player.IsNpc || newTarget == null) return;
+
+      foreach (OptimizedSchematic schematic in optimizedSchematics)
       {
-        if (player == null || player.IsNpc || newTarget == null) return;
-
-        foreach (OptimizedSchematic schematic in optimizedSchematics)
+        foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
         {
-          foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
+          if (oldTarget != null && (cluster.insidePlayers.Contains(oldTarget) && !cluster.insidePlayers.Contains(newTarget)))
           {
-            if (oldTarget != null && (cluster.insidePlayers.Contains(oldTarget) && !cluster.insidePlayers.Contains(newTarget)))
-            {
-              cluster.UnspawnFor(player);
-            }
+            cluster.UnspawnFor(player);
+          }
 
-            if (newTarget != null && cluster.insidePlayers.Contains(newTarget) && (oldTarget== null || !cluster.insidePlayers.Contains(oldTarget)))
-            {
-              cluster.SpawnFor(player);
-            }
-
+          if (cluster.insidePlayers.Contains(newTarget) && (oldTarget == null || !cluster.insidePlayers.Contains(oldTarget)))
+          {
+            cluster.SpawnFor(player);
           }
         }
       }
