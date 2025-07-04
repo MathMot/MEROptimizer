@@ -518,7 +518,7 @@ namespace MEROptimizer.Application
 
       if (ev.Schematic == null) return;
 
-      if (excludedNames.Any(n => ev.Schematic.Name.Contains(n)))
+      if (excludedNames.Any(n => ev.Schematic.Name.ToLower().Contains(n)))
       {
         return;
       }
