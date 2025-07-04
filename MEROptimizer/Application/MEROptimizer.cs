@@ -565,6 +565,10 @@ namespace MEROptimizer.Application
           collider.transform.position = position;
           collider.transform.rotation = rotation;
           collider.transform.name = $"[MEROCOLLIDER] {primitive.transform.name}";
+
+          //In order to get the collider to work with cedmod
+          collider.gameObject.layer = (color.a < 1 ? LayerMask.NameToLayer("Glass") : 0);
+
           MeshCollider meshCollider = collider.AddComponent<MeshCollider>();
           meshCollider.convex = true;
           switch (primitiveType)
