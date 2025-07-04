@@ -518,7 +518,7 @@ namespace MEROptimizer.Application
 
       if (ev.Schematic == null) return;
 
-      if (excludedNames.Any(n => ev.Schematic.Name.Contains(n)))
+      if (excludedNames.Any(n => ev.Schematic.Name.ToLower().Contains(n)))
       {
         return;
       }
@@ -565,6 +565,10 @@ namespace MEROptimizer.Application
           collider.transform.position = position;
           collider.transform.rotation = rotation;
           collider.transform.name = $"[MEROCOLLIDER] {primitive.transform.name}";
+
+          //In order to get the collider to work with cedmod
+          collider.gameObject.layer = (color.a < 1 ? LayerMask.NameToLayer("Glass") : 0);
+
           MeshCollider meshCollider = collider.AddComponent<MeshCollider>();
           meshCollider.convex = true;
           switch (primitiveType)
