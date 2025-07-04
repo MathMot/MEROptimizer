@@ -44,7 +44,7 @@ namespace MEROptimizer.Application.Commands
       foreach (OptimizedSchematic os in Plugin.merOptimizer.optimizedSchematics)
       {
         message +=
-          $"Schematic : {os.schematic.name}\n" +
+          $"Schematic : {os.schematic.name}({os.Id})\n" +
           $"Spawned at {os.spawnTime.ToLongTimeString()}\n" +
           $"Total primitive count : {os.GetTotalPrimitiveCount() + os.schematicServerSidePrimitiveCount}\n" +
           $"Client side primitive count: {os.GetTotalPrimitiveCount()}\n" +

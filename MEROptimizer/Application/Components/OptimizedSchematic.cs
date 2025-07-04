@@ -15,6 +15,9 @@ namespace MEROptimizer.Application.Components
 {
   public class OptimizedSchematic
   {
+    private static uint _schematicId = 0;
+
+    public static uint GetNextSchematicId() { return _schematicId++; }
     public SchematicObject schematic { get; set; }
 
     private string schematicName;
@@ -30,6 +33,8 @@ namespace MEROptimizer.Application.Components
     public int schematicServerSidePrimitiveEmptiesCount = -1;
 
     public int schematicServerSidePrimitiveCount { get; set; } = -1;
+
+    public uint Id;
 
     public int GetTotalPrimitiveCount()
     {
@@ -47,7 +52,7 @@ namespace MEROptimizer.Application.Components
       bool doClusters = false, float distance = 50, List<string> excludedUnspawnObjects = null, float maxDistanceForPrimitiveCluster = 2.5f,
       int maxPrimitivesPerCluster = 100)
     {
-
+      Id = OptimizedSchematic.GetNextSchematicId();
 
       this.schematic = schematic;
       this.colliders = colliders;

@@ -40,9 +40,41 @@ namespace MEROptimizer.Application.Commands
         return false;
       }
 
-      List<OptimizedSchematic> hiddenSchematics = new List<OptimizedSchematic>();
+      if (arguments.Count >= 2){
+        if (!Player.TryGet(arguments.ElementAt(1), out player))
+        {
+          response = $"Unable to parse a correct player from {arguments.ElementAt(1)}";
+          return false;
+        }
+      }
 
-      foreach (OptimizedSchematic optimizedSchematic in Plugin.merOptimizer.optimizedSchematics)
+      List<OptimizedSchematic> hiddenSchematics = new List<OptimizedSchematic>();
+      List<OptimizedSchematic> targetedSchematics = new List<OptimizedSchematic>();
+
+      if (arguments.Count >= 3)
+      {
+        if (!uint.TryParse(arguments.ElementAt(2), out uint id))
+        {
+          response = $"Unable to parse a correct player from {arguments.ElementAt(1)}";
+          return false;
+        }
+        else
+        {
+          targetedSchematics = Plugin.merOptimizer.optimizedSchematics.Where(s => s.Id == id).ToList();
+        }
+      }
+      else
+      {
+        targetedSchematics = Plugin.merOptimizer.optimizedSchematics;
+      }
+
+      if (targetedSchematics.IsEmpty())
+      {
+        response = $"No OptimizedSchematic corresponds, none is spawned or the id specified corresponds to no schematic.";
+        return false;
+      }
+
+      foreach (OptimizedSchematic optimizedSchematic in targetedSchematics)
       {
         if (display) hiddenSchematics.Add(optimizedSchematic);
         optimizedSchematic.HideFor(player);
