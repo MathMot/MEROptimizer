@@ -1,4 +1,4 @@
-﻿using AdminToys;
+using AdminToys;
 using Logger = LabApi.Features.Console.Logger;
 using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
 using LabApi.Events.Arguments.PlayerEvents;
@@ -25,24 +25,7 @@ namespace MEROptimizer.Application
 {
   public class MEROptimizer
   {
-
-    private bool hasGenerated = false;
-
-    private Mesh cubeMesh;
-
-    private Mesh sphereMesh;
-
-    private Mesh capsuleMesh;
-
-    private Mesh cylinderMesh;
-
     public static uint PrimitiveAssetId;
-
-    /*
-    private Mesh quadMesh;
-   
-    private Mesh planeMesh;
-    */
 
     private bool excludeCollidables;
 
@@ -158,52 +141,6 @@ namespace MEROptimizer.Application
       optimizedSchematics.Clear();
     }
 
-    private GameObject tempPrimitivePrefab;
-    private void GenerateMeshFilters()
-    {
-      if (tempPrimitivePrefab == null)
-      {
-        if (!NetworkClient.prefabs.ContainsKey(1321952889u))
-        {
-          Logger.Error("Can't generate proper colliders for primitives, primitive gameobject is not found.");
-          return;
-        }
-
-        tempPrimitivePrefab = NetworkClient.prefabs.Where(k => k.Key == 1321952889u).FirstOrDefault().Value;
-        PrimitiveAssetId = tempPrimitivePrefab.GetComponent<NetworkIdentity>().assetId;
-      }
-
-      GameObject toy = UnityEngine.GameObject.Instantiate(tempPrimitivePrefab);
-      PrimitiveObjectToy primitive = toy.GetComponent<PrimitiveObjectToy>();
-
-      primitive.NetworkPosition = new Vector3(0f, 0f, 0f);
-      primitive.NetworkScale = Vector3.one;
-
-      primitive.NetworkPrimitiveType = PrimitiveType.Cube;
-      this.cubeMesh = primitive.GetComponent<MeshFilter>().mesh;
-
-      primitive.NetworkPrimitiveType = PrimitiveType.Sphere;
-      this.sphereMesh = primitive.GetComponent<MeshFilter>().mesh;
-
-      primitive.NetworkPrimitiveType = PrimitiveType.Capsule;
-      this.capsuleMesh = primitive.GetComponent<MeshFilter>().mesh;
-
-      primitive.NetworkPrimitiveType = PrimitiveType.Cylinder;
-      this.cylinderMesh = primitive.GetComponent<MeshFilter>().mesh;
-
-      /*
-      primitive.NetworkPrimitiveType = PrimitiveType.Quad;
-      this.quadMesh = primitive.GetComponent<MeshFilter>().mesh;
-
-      primitive.NetworkPrimitiveType = PrimitiveType.Plane;
-      this.planeMesh = primitive.GetComponent<MeshFilter>().mesh;
-      */
-
-      UnityEngine.Object.Destroy(primitive.gameObject);
-
-      hasGenerated = true;
-    }
-
     Dictionary<PrimitiveObjectToy, bool> GetPrimitivesToOptimize(Transform parent, List<Transform> parentToExclude,
       Dictionary<PrimitiveObjectToy, bool> primitives = null, bool clusterChilds = true)
     {
@@ -235,16 +172,9 @@ namespace MEROptimizer.Application
             continue;
           }
 
-          // Keep the quads/planes, colliders are buggy, + removing primitives working as empty for MER
-          if ((primitive.PrimitiveType == PrimitiveType.Quad || primitive.PrimitiveType == PrimitiveType.Plane)
-            && primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
+          if (this.excludeCollidables && primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
           {
             continue;
-          }
-
-          if (this.excludeCollidables)
-          {
-            if (primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable)) continue;
           }
 
           if (primitive.PrimitiveFlags != PrimitiveFlags.None)
@@ -305,12 +235,24 @@ namespace MEROptimizer.Application
 #endif
     private void OnWaitingForPlayers()
     {
-      if (!hasGenerated)
+      Clear();
+
+      if (PrimitiveAssetId != 0) return;
+
+      foreach (GameObject prefab in NetworkClient.prefabs.Values)
       {
-        GenerateMeshFilters();
+          if (prefab.TryGetComponent<PrimitiveObjectToy>(out _))
+          {
+              PrimitiveAssetId = prefab.GetComponent<NetworkIdentity>().assetId;
+              Logger.Debug("PrimitiveObjectToy AssetId successfully found.");
+              break;
+          }
       }
 
-      Clear();
+      if (PrimitiveAssetId == 0)
+      {
+          Logger.Error("Could not find the PrimitiveObjectToy prefab! Client-side primitives will fail to spawn.");
+      }
     }
 
     //--------------- Events EXILED
@@ -510,11 +452,6 @@ namespace MEROptimizer.Application
         Logger.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
         return;
       }
-      if (!hasGenerated)
-      {
-        Logger.Error($"Unable to generate Optimized Schematic for {ev.Schematic.Name} because mesh filters are not generated yet !");
-        return;
-      }
 
       if (ev.Schematic == null) return;
 
@@ -570,27 +507,10 @@ namespace MEROptimizer.Application
           collider.gameObject.layer = (color.a < 1 ? LayerMask.NameToLayer("Glass") : 0);
 
           MeshCollider meshCollider = collider.AddComponent<MeshCollider>();
-          meshCollider.convex = true;
-          switch (primitiveType)
-          {
-            case PrimitiveType.Sphere:
-              meshCollider.sharedMesh = this.sphereMesh;
-              break;
-            case PrimitiveType.Capsule:
-              meshCollider.sharedMesh = this.capsuleMesh;
-              break;
-            case PrimitiveType.Cylinder:
-              meshCollider.sharedMesh = this.cylinderMesh;
-              break;
-            case PrimitiveType.Cube:
-              meshCollider.sharedMesh = this.cubeMesh;
-              break;
-            default:
-              UnityEngine.GameObject.Destroy(collider);
-              break;
-          }
+          meshCollider.sharedMesh = PrimitiveObjectToy.PrimitiveTypeToMesh[primitiveType];
 
           if (meshCollider != null) serverSideColliders.Add(meshCollider);
+          else UnityEngine.Object.Destroy(collider);
         }
 
         primitivesToDestroy.Add(primitive);
