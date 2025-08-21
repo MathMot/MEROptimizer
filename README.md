@@ -1,5 +1,5 @@
 # MEROptimizer
-[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.1.0-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![EXILED Version](https://img.shields.io/badge/EXILED_Version-9.6.1-FFFFA0 )](https://github.com/ExMod-Team/EXILED/releases/tag/v9.6.1) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.1-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
+[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.1.0-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![EXILED Version](https://img.shields.io/badge/EXILED_Version-9.8.1-FFFFA0 )](https://github.com/ExMod-Team/EXILED/releases/tag/v9.8.1) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.3-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
 
 ---
 
@@ -43,7 +43,7 @@ You can ask me questions on discord (matmoth)
 
 Setup : 
 -- 
-- Make sure that your SCP:SL server version(14.1.0) corresponds <br>
+- Make sure that your SCP:SL server version(14.1.3) corresponds <br>
 - [Download](https://github.com/MathMot/MEROptimizer/releases/latest) the latest version of the plugin and place your .dll in  the *LabAPI\plugins\<global/port>* folder.
 
 ---
