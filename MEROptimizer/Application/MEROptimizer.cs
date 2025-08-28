@@ -214,7 +214,10 @@ namespace MEROptimizer.Application
     private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
     {
       if (ev.Player == null || ev.NewTarget == null) return;
-      OnPlayerChangedSpectator(ev.Player, ev.OldTarget, ev.NewTarget);
+
+      Player oldTarget = null;
+      if (ev.OldTarget != null) oldTarget = ev.OldTarget;
+      OnPlayerChangedSpectator(ev.Player, oldTarget, ev.NewTarget);
     }
 
 #else
