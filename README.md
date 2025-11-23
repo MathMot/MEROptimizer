@@ -1,5 +1,5 @@
 # MEROptimizer
-[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.1.0-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.0.2) [![EXILED Version](https://img.shields.io/badge/EXILED_Version-9.8.1-FFFFA0 )](https://github.com/ExMod-Team/EXILED/releases/tag/v9.8.1) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.1.3-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
+[![Version](https://img.shields.io/github/v/release/MathMot/MEROptimizer?&label=Version&color=d500ff)](https://github.com/MathMot/MEROptimizer/releases/latest) [![LabAPI Version](https://img.shields.io/badge/LabAPI_Version-1.1.4-51f4ff )](https://github.com/northwood-studios/LabAPI/releases/tag/1.1.4) [![EXILED Version](https://img.shields.io/badge/EXILED_Version-9.10.2-FFFFA0 )](https://github.com/ExMod-Team/EXILED/releases/tag/v9.10.2) [![SCP:SL Version](https://img.shields.io/badge/SCP:SL_Version-14.2.2-blue?&color=e5b200)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![Total Downloads](https://img.shields.io/github/downloads/MathMot/MEROptimizer/total.svg?label=Total%20Downloads&color=&color=ffbf00)]()<br>
 
 ---
 
@@ -43,7 +43,7 @@ You can ask me questions on discord (matmoth)
 
 Setup : 
 -- 
-- Make sure that your SCP:SL server version(14.1.3) corresponds <br>
+- Make sure that your SCP:SL server version(14.2.2) corresponds <br>
 - [Download](https://github.com/MathMot/MEROptimizer/releases/latest) the latest version of the plugin and place your .dll in  the *LabAPI\plugins\<global/port>* folder.
 
 ---
@@ -177,7 +177,7 @@ The higher the value the more primitives can enter a cluster, lowering the quali
 
 Informations : 
 -- 
-- Quads and Planes <b>with collisions</b> will not be optimized by the plugin, the primitives will stay by default on the server side.
+- Quads and Planes <b>with collisions</b> WILL be optimized by the plugin.
 - For this plugin to work without breaking any in game system, the real colliders detecting the players are spawned at 2000 units above the real clusters, each player also has a rigidbody+collider 2000 units above them for the colliders to detect them, so if you have any playable area at 2000 units above another one, colliding issues could appear.
 - If you're using AMERT or some sort of external plugin that interacts with in game primitives, be sure to use the exclusion feature to exclude every object that the plugin could use (for example with AMERT, every object with scripts, animations, etc.)<br>If this doesn't work, feel free to reach me via discord to find a solution.
 - SCP 079 can't use the clusterize option for now, if a player is SCP 079, he will load every maps at all times to prevent desync and stuff

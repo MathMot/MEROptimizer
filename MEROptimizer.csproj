@@ -93,11 +93,8 @@
     <Reference Include="LabApi">
       <HintPath>deps\LabApi.dll</HintPath>
     </Reference>
-    <Reference Include="Mirror">
-      <HintPath>deps\Mirror.dll</HintPath>
-    </Reference>
-    <Reference Include="Mirror_publicized">
-      <HintPath>deps\Mirror_publicized.dll</HintPath>
+    <Reference Include="Mirror-Publicized">
+      <HintPath>deps\Mirror-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="ProjectMER">
       <HintPath>deps\ProjectMER.dll</HintPath>

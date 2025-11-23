@@ -46,7 +46,7 @@ namespace MEROptimizer
     public override string Author { get; } = "Math";
 
     public override string Description { get; } = "Meant to optimize MapEditorReborn primitives by making them client sided + Providing an API to spawn & handle client side primitives.";
-    public override Version Version { get; } = new Version(2, 0, 7, 0);
+    public override Version Version { get; } = new Version(2, 0, 8, 0);
 
     public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 
