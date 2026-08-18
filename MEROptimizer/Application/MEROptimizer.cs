@@ -314,16 +314,16 @@ namespace MEROptimizer.Application
       {
 
         // just spawned as a spectator, we spawn all clusters primitives for him
-        if ((player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
+        if (player.Role == RoleTypeId.Scp079 || (player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch) && !shouldSpectatorsBeAffectedByPDS)
         {
           // Unspawning and then respawning primitives at the same frame causes the game to shit itself, so a delay is needed
           Timing.CallDelayed(.5f, () =>
           {
-            if (player != null && (player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch))
+            if (player != null && (player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch || player.Role == RoleTypeId.Scp079))
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})\nNvm it spawns maybe because he's a 079 too idk");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -388,7 +388,7 @@ namespace MEROptimizer.Application
             }
           }
 
-          if (player.Role == RoleTypeId.Filmmaker || player.Role == RoleTypeId.Scp079)
+          if (player.Role == RoleTypeId.Filmmaker /*|| player.Role == RoleTypeId.Scp079*/)
           {
             Timing.CallDelayed(.5f, () =>
             {

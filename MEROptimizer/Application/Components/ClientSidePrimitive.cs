@@ -67,7 +67,8 @@ namespace MEROptimizer.Application.Components
         payload = writer.ToArraySegment()
       };
 
-      destroyMessage = new ObjectDestroyMessage()
+            NetworkWriterPool.Return(writer);
+            destroyMessage = new ObjectDestroyMessage()
       {
         netId = netId,
       };
