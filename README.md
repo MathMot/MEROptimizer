@@ -192,3 +192,7 @@ Credits :
 - Example map in this readme is also made by a friend
 
 Thanks to a lot of members of the community for helping me find issues with the plugin.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
